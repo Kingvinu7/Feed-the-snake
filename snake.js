@@ -6,6 +6,13 @@ const restartBtn = document.getElementById('restartBtn');
 let tileSize = 20;
 let cols, rows;
 
+// Touch/swipe variables
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+const minSwipeDistance = 50;
+
 function resizeCanvas() {
   const maxWidth = window.innerWidth * 0.9;
   const maxHeight = window.innerHeight * 0.75;
@@ -28,7 +35,13 @@ function resizeCanvas() {
 }
 
 resizeCanvas();
-window.addEventListener("resize", () => location.reload());
+window.addEventListener("resize", () => {
+  resizeCanvas();
+  if (snake && snake.length > 0) {
+    // Don't reload, just resize
+    drawGame();
+  }
+});
 
 let snake, direction, apple, bigApple, score, gameInterval, bigAppleTimer;
 
@@ -40,15 +53,20 @@ function resetGame() {
   score = 0;
   updateScore();
   clearInterval(gameInterval);
+  clearTimeout(bigAppleTimer);
   gameInterval = setInterval(gameLoop, 200); // Slow speed
   restartBtn.style.display = "none";
 }
 
 function randomPosition() {
-  return {
-    x: Math.floor(Math.random() * cols),
-    y: Math.floor(Math.random() * rows)
-  };
+  let position;
+  do {
+    position = {
+      x: Math.floor(Math.random() * cols),
+      y: Math.floor(Math.random() * rows)
+    };
+  } while (snake && snake.some(segment => segment.x === position.x && segment.y === position.y));
+  return position;
 }
 
 function updateScore() {
@@ -65,6 +83,7 @@ function gameLoop() {
     snake.some(segment => segment.x === head.x && segment.y === head.y)
   ) {
     clearInterval(gameInterval);
+    clearTimeout(bigAppleTimer);
     restartBtn.style.display = "block";
     return;
   }
@@ -128,6 +147,16 @@ function drawGame() {
       0, Math.PI * 2
     );
     ctx.fill();
+    
+    // Draw big apple value
+    ctx.fillStyle = 'white';
+    ctx.font = `${tileSize / 2}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.fillText(
+      bigApple.value.toString(),
+      bigApple.x * tileSize + tileSize / 2,
+      bigApple.y * tileSize + tileSize / 2 + tileSize / 6
+    );
   }
 
   // Draw snake
@@ -156,6 +185,7 @@ function drawGame() {
   });
 }
 
+// Keyboard controls
 document.addEventListener('keydown', e => {
   if (e.key === 'ArrowUp' && direction.y !== 1) direction = { x: 0, y: -1 };
   if (e.key === 'ArrowDown' && direction.y !== -1) direction = { x: 0, y: 1 };
@@ -163,6 +193,58 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight' && direction.x !== -1) direction = { x: 1, y: 0 };
 });
 
+// Touch/swipe controls
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+}, { passive: false });
+
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  touchEndX = e.changedTouches[0].clientX;
+  touchEndY = e.changedTouches[0].clientY;
+  handleSwipe();
+}, { passive: false });
+
+function handleSwipe() {
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+  const absDeltaX = Math.abs(deltaX);
+  const absDeltaY = Math.abs(deltaY);
+
+  // Check if swipe is long enough
+  if (Math.max(absDeltaX, absDeltaY) < minSwipeDistance) {
+    return;
+  }
+
+  // Determine swipe direction
+  if (absDeltaX > absDeltaY) {
+    // Horizontal swipe
+    if (deltaX > 0 && direction.x !== -1) {
+      direction = { x: 1, y: 0 }; // Right
+    } else if (deltaX < 0 && direction.x !== 1) {
+      direction = { x: -1, y: 0 }; // Left
+    }
+  } else {
+    // Vertical swipe
+    if (deltaY > 0 && direction.y !== -1) {
+      direction = { x: 0, y: 1 }; // Down
+    } else if (deltaY < 0 && direction.y !== 1) {
+      direction = { x: 0, y: -1 }; // Up
+    }
+  }
+}
+
 restartBtn.addEventListener('click', resetGame);
+
+// Prevent context menu on long press
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault();
+});
 
 resetGame();
