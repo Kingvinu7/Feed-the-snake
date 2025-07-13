@@ -1,55 +1,35 @@
-* {
-  box-sizing: border-box;
-}
-
-html, body {
+body {
   margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden;
-  background: #f0f0f0;
-  font-family: 'Segoe UI', sans-serif;
-  touch-action: none;
-}
-
-canvas {
-  display: block;
-  background: #ffffff;
-  border: 5px solid #333;
-  max-width: 100vmin;
-  max-height: 100vmin;
-  width: 100vmin;
-  height: 100vmin;
-  margin: auto;
-  position: absolute;
-  top: 0; bottom: 0; left: 0; right: 0;
-}
-
-#scoreboard {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  z-index: 10;
-}
-
-.message {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
+  font-family: sans-serif;
   text-align: center;
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: crimson;
-  transform: translateY(-50%);
-  animation: fadeIn 0.5s ease-out;
+  background-image: url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
+  background-size: auto;
+  color: white;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+#game {
+  display: block;
+  margin: 0 auto;
+  background-color: transparent;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+#message {
+  font-size: 2rem;
+  color: white;
+  margin-top: 1rem;
+  display: none;
+}
+
+#restart {
+  display: none;
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  padding: 0.75em 1.5em;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 10;
 }
