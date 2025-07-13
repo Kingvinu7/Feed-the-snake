@@ -1,257 +1,168 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
-  const scoreEl = document.getElementById('score');
-  const message = document.getElementById('message');
-  const restartBtn = document.getElementById('restart');
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-  const grid = 20;
-  let count = 0;
-  let frameSpeed = 15; // slower snake
-  let running = false;
-  let animationId;
-  let snake, apple, bigApple, score = 0;
-  let bigAppleTimeout = null;
-  let bigAppleSpawnTime = 0;
-  const BIG_APPLE_LIFETIME = 7000; // ms
-  const BIG_APPLE_MAX_SCORE = 5;
+let tileSize = 20;
+let cols = 20;
+let rows = 35;
 
-  function resizeCanvas() {
-    const size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
-    canvas.width = Math.floor(size / grid) * grid;
-    canvas.height = Math.floor(size / grid) * grid;
-  }
+canvas.width = tileSize * cols;
+canvas.height = tileSize * rows;
 
-  function getRandomCell(limit) {
-    return Math.floor(Math.random() * (limit / grid)) * grid;
-  }
+let snake, direction, apple, bigApple, score, gameOver, frameCount;
+let bigAppleTimer = 0;
+const BIG_APPLE_LIFETIME = 300;
+const BIG_APPLE_INITIAL_SCORE = 200;
 
-  function placeApple(type = 'normal') {
-    return {
-      x: getRandomCell(canvas.width),
-      y: getRandomCell(canvas.height),
-      scale: 1,
-      type,
-      size: type === 'big' ? grid * 1.5 : grid
+function restartGame() {
+  snake = [{ x: 10, y: 17 }];
+  direction = { x: 1, y: 0 };
+  apple = spawnApple();
+  bigApple = null;
+  score = 0;
+  gameOver = false;
+  frameCount = 0;
+  bigAppleTimer = 0;
+  document.getElementById("score").textContent = `Score: ${score}`;
+  document.getElementById("restartBtn").style.display = "none";
+  requestAnimationFrame(gameLoop);
+}
+
+function spawnApple() {
+  let pos;
+  do {
+    pos = {
+      x: Math.floor(Math.random() * cols),
+      y: Math.floor(Math.random() * rows),
     };
+  } while (snake.some(segment => segment.x === pos.x && segment.y === pos.y));
+  return pos;
+}
+
+function drawRect(x, y, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+}
+
+function drawSnake() {
+  snake.forEach((segment, index) => {
+    drawRect(segment.x, segment.y, index === 0 ? "green" : "#004d00");
+  });
+
+  // Add eyes and tongue on head
+  const head = snake[0];
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.arc(head.x * tileSize + 5, head.y * tileSize + 5, 2, 0, 2 * Math.PI);
+  ctx.arc(head.x * tileSize + 15, head.y * tileSize + 5, 2, 0, 2 * Math.PI);
+  ctx.fill();
+
+  ctx.fillStyle = "red";
+  if (direction.x !== 0) {
+    ctx.fillRect(
+      head.x * tileSize + (direction.x === 1 ? tileSize : -4),
+      head.y * tileSize + 8,
+      4,
+      4
+    );
+  } else {
+    ctx.fillRect(
+      head.x * tileSize + 8,
+      head.y * tileSize + (direction.y === 1 ? tileSize : -4),
+      4,
+      4
+    );
+  }
+}
+
+function gameLoop() {
+  if (gameOver) return;
+
+  frameCount++;
+  if (frameCount % 12 !== 0) {
+    requestAnimationFrame(gameLoop);
+    return;
   }
 
-  function initGame() {
-    resizeCanvas();
-    snake = {
-      x: grid * 5,
-      y: grid * 5,
-      dx: grid,
-      dy: 0,
-      cells: [],
-      maxCells: 4,
-      direction: 'right'
-    };
+  const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
 
-    apple = placeApple();
+  // wall or self collision
+  if (
+    head.x < 0 ||
+    head.y < 0 ||
+    head.x >= cols ||
+    head.y >= rows ||
+    snake.some(segment => segment.x === head.x && segment.y === head.y)
+  ) {
+    gameOver = true;
+    document.getElementById("restartBtn").style.display = "block";
+    return;
+  }
+
+  snake.unshift(head);
+
+  let ateApple = head.x === apple.x && head.y === apple.y;
+  let ateBigApple = bigApple && head.x === bigApple.x && head.y === bigApple.y;
+
+  if (ateApple) {
+    score += 5;
+    apple = spawnApple();
+    bigAppleTimer++;
+    if (bigAppleTimer === 5) {
+      bigApple = { ...spawnApple(), life: BIG_APPLE_LIFETIME };
+      bigAppleTimer = 0;
+    }
+  } else if (ateBigApple) {
+    let bonus = Math.max(1, Math.floor((bigApple.life / BIG_APPLE_LIFETIME) * BIG_APPLE_INITIAL_SCORE));
+    score += bonus;
     bigApple = null;
-    clearTimeout(bigAppleTimeout);
-    bigAppleTimeout = null;
-    score = 0;
-    scoreEl.textContent = score;
-    message.style.display = 'none';
-    restartBtn.style.display = 'none';
-    running = true;
-    loop();
+  } else {
+    snake.pop();
   }
 
-  function loop() {
-    animationId = requestAnimationFrame(loop);
-    if (!running) return;
-
-    if (++count < frameSpeed) return;
-    count = 0;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    snake.x += snake.dx;
-    snake.y += snake.dy;
-
-    if (snake.x < 0) snake.x = canvas.width - grid;
-    else if (snake.x >= canvas.width) snake.x = 0;
-    if (snake.y < 0) snake.y = canvas.height - grid;
-    else if (snake.y >= canvas.height) snake.y = 0;
-
-    snake.cells.unshift({ x: snake.x, y: snake.y });
-    if (snake.cells.length > snake.maxCells) {
-      snake.cells.pop();
+  if (bigApple) {
+    bigApple.life--;
+    if (bigApple.life <= 0) {
+      bigApple = null;
     }
-
-    if (apple) {
-      apple.scale = 1 + Math.sin(Date.now() / 200) * 0.1;
-      ctx.fillStyle = 'red';
-      ctx.beginPath();
-      ctx.arc(
-        apple.x + grid / 2,
-        apple.y + grid / 2,
-        (grid / 2 - 2) * apple.scale,
-        0,
-        Math.PI * 2
-      );
-      ctx.fill();
-    }
-
-    if (bigApple) {
-      bigApple.scale = 1 + Math.sin(Date.now() / 150) * 0.15;
-      ctx.fillStyle = 'orange';
-      ctx.beginPath();
-      ctx.arc(
-        bigApple.x + grid / 2,
-        bigApple.y + grid / 2,
-        (grid * 0.75) * bigApple.scale,
-        0,
-        Math.PI * 2
-      );
-      ctx.fill();
-    }
-
-    snake.cells.forEach((cell, index) => {
-      if (index === 0) {
-        ctx.fillStyle = '#004d00';
-        ctx.fillRect(cell.x, cell.y, grid - 1, grid - 1);
-
-        const [eye1, eye2, tongue] = getHeadDetails(cell, snake.direction);
-        ctx.fillStyle = 'white';
-        ctx.beginPath();
-        ctx.arc(...eye1, 2, 0, Math.PI * 2);
-        ctx.arc(...eye2, 2, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = 'black';
-        ctx.beginPath();
-        ctx.arc(...eye1, 1, 0, Math.PI * 2);
-        ctx.arc(...eye2, 1, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(...tongue.start);
-        ctx.lineTo(...tongue.end);
-        ctx.stroke();
-      } else {
-        const alpha = 1 - index / snake.cells.length;
-        ctx.fillStyle = `rgba(0, 128, 0, ${alpha})`;
-        ctx.fillRect(cell.x, cell.y, grid - 1, grid - 1);
-      }
-
-      if (apple && cell.x === apple.x && cell.y === apple.y) {
-        snake.maxCells++;
-        score++;
-        scoreEl.textContent = score;
-        apple = placeApple();
-        if (score % 5 === 0 && !bigApple) {
-          bigApple = placeApple('big');
-          bigAppleSpawnTime = Date.now();
-          bigAppleTimeout = setTimeout(() => {
-            bigApple = null;
-          }, BIG_APPLE_LIFETIME);
-        }
-      }
-
-      if (bigApple && cell.x === bigApple.x && cell.y === bigApple.y) {
-        const timeAlive = Date.now() - bigAppleSpawnTime;
-        const decay = timeAlive / BIG_APPLE_LIFETIME;
-        const gainedScore = Math.max(1, Math.floor(BIG_APPLE_MAX_SCORE * (1 - decay)));
-
-        snake.maxCells += gainedScore;
-        score += gainedScore;
-        scoreEl.textContent = score;
-
-        clearTimeout(bigAppleTimeout);
-        bigApple = null;
-      }
-
-      for (let i = index + 1; i < snake.cells.length; i++) {
-        if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
-          running = false;
-          cancelAnimationFrame(animationId);
-          message.textContent = '💀 Game Over';
-          message.style.display = 'block';
-          restartBtn.style.display = 'inline-block';
-        }
-      }
-    });
   }
 
-  document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowLeft' && snake.dx === 0) {
-      snake.dx = -grid; snake.dy = 0; snake.direction = 'left';
-    } else if (e.key === 'ArrowUp' && snake.dy === 0) {
-      snake.dy = -grid; snake.dx = 0; snake.direction = 'up';
-    } else if (e.key === 'ArrowRight' && snake.dx === 0) {
-      snake.dx = grid; snake.dy = 0; snake.direction = 'right';
-    } else if (e.key === 'ArrowDown' && snake.dy === 0) {
-      snake.dy = grid; snake.dx = 0; snake.direction = 'down';
-    }
-  });
+  document.getElementById("score").textContent = `Score: ${score}`;
 
-  let startX = 0, startY = 0;
-  canvas.addEventListener('touchstart', e => {
-    const touch = e.touches[0];
-    startX = touch.clientX;
-    startY = touch.clientY;
-  });
+  // Draw
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawRect(apple.x, apple.y, "red");
+  if (bigApple) drawRect(bigApple.x, bigApple.y, "orange");
+  drawSnake();
 
-  canvas.addEventListener('touchend', e => {
-    const touch = e.changedTouches[0];
-    const dx = touch.clientX - startX;
-    const dy = touch.clientY - startY;
+  requestAnimationFrame(gameLoop);
+}
 
-    if (Math.abs(dx) > Math.abs(dy)) {
-      if (dx > 30 && snake.dx === 0) {
-        snake.dx = grid; snake.dy = 0; snake.direction = 'right';
-      } else if (dx < -30 && snake.dx === 0) {
-        snake.dx = -grid; snake.dy = 0; snake.direction = 'left';
-      }
-    } else {
-      if (dy > 30 && snake.dy === 0) {
-        snake.dy = grid; snake.dx = 0; snake.direction = 'down';
-      } else if (dy < -30 && snake.dy === 0) {
-        snake.dy = -grid; snake.dx = 0; snake.direction = 'up';
-      }
-    }
-  });
-
-  restartBtn.addEventListener('click', initGame);
-
-  function getHeadDetails(cell, direction) {
-    const cx = cell.x + grid / 2;
-    const cy = cell.y + grid / 2;
-    const offset = grid * 0.2;
-
-    let eye1, eye2, tongue;
-    switch (direction) {
-      case 'up':
-        eye1 = [cx - offset, cy - offset];
-        eye2 = [cx + offset, cy - offset];
-        tongue = { start: [cx, cy - grid / 2], end: [cx, cy - grid] };
-        break;
-      case 'down':
-        eye1 = [cx - offset, cy + offset];
-        eye2 = [cx + offset, cy + offset];
-        tongue = { start: [cx, cy + grid / 2], end: [cx, cy + grid] };
-        break;
-      case 'left':
-        eye1 = [cx - offset, cy - offset];
-        eye2 = [cx - offset, cy + offset];
-        tongue = { start: [cx - grid / 2, cy], end: [cx - grid, cy] };
-        break;
-      case 'right':
-      default:
-        eye1 = [cx + offset, cy - offset];
-        eye2 = [cx + offset, cy + offset];
-        tongue = { start: [cx + grid / 2, cy], end: [cx + grid, cy] };
-        break;
-    }
-
-    return [eye1, eye2, tongue];
-  }
-
-  initGame();
+// Control
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowUp" && direction.y === 0) direction = { x: 0, y: -1 };
+  if (e.key === "ArrowDown" && direction.y === 0) direction = { x: 0, y: 1 };
+  if (e.key === "ArrowLeft" && direction.x === 0) direction = { x: -1, y: 0 };
+  if (e.key === "ArrowRight" && direction.x === 0) direction = { x: 1, y: 0 };
 });
+
+// Swipe support
+let touchStartX = null;
+let touchStartY = null;
+canvas.addEventListener("touchstart", e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+});
+canvas.addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dx > 0 && direction.x === 0) direction = { x: 1, y: 0 };
+    else if (dx < 0 && direction.x === 0) direction = { x: -1, y: 0 };
+  } else {
+    if (dy > 0 && direction.y === 0) direction = { x: 0, y: 1 };
+    else if (dy < 0 && direction.y === 0) direction = { x: 0, y: -1 };
+  }
+});
+
+restartGame();
