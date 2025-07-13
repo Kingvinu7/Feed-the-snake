@@ -1,27 +1,17 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Feed the Snake</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="snake.css" />
-  </head>
-  <body>
-    <div class="screen">
-      <canvas id="game" width="480" height="480"></canvas>
-      <div id="message" class="message"></div>
-    </div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feed the Snake</title>
+  <link rel="stylesheet" href="snake.css" />
+</head>
+<body>
+  <div class="screen">
+    <canvas id="game"></canvas>
+    <div id="message" class="message"></div>
+  </div>
 
-    <div class="controls">
-      <button id="up">🔼</button>
-      <div>
-        <button id="left">◀️</button>
-        <button id="startBtn">▶ Start</button>
-        <button id="right">▶️</button>
-      </div>
-      <button id="down">🔽</button>
-    </div>
-
-    <script src="snake.js"></script>
-  </body>
+  <script src="snake.js"></script>
+</body>
 </html>
