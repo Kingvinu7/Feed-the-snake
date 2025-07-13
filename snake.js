@@ -3,12 +3,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
   const message = document.getElementById('message');
+  const restartBtn = document.getElementById('restart');
 
   const grid = 20;
   let count = 0;
+  let frameSpeed = 15; // lower = slower
   let running = false;
   let animationId;
-  let snake, apple, score = 0;
+  let snake, apple, bigApple, score = 0;
 
   function resizeCanvas() {
     const size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
@@ -20,11 +22,14 @@ document.addEventListener('DOMContentLoaded', () => {
     return Math.floor(Math.random() * (limit / grid)) * grid;
   }
 
-  function placeApple() {
-    apple.x = getRandomCell(canvas.width);
-    apple.y = getRandomCell(canvas.height);
-    apple.scale = 1;
-    apple.bounce = 1;
+  function placeApple(type = 'normal') {
+    return {
+      x: getRandomCell(canvas.width),
+      y: getRandomCell(canvas.height),
+      scale: 1,
+      type,
+      size: type === 'big' ? grid * 1.5 : grid
+    };
   }
 
   function initGame() {
@@ -35,16 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
       dx: grid,
       dy: 0,
       cells: [],
-      maxCells: 4
+      maxCells: 4,
+      direction: 'right'
     };
 
-    apple = { x: 0, y: 0, scale: 1, bounce: 1 };
-    placeApple();
-
+    apple = placeApple();
+    bigApple = null;
     score = 0;
     scoreEl.textContent = score;
-    message.textContent = '';
     message.style.display = 'none';
+    restartBtn.style.display = 'none';
     running = true;
     loop();
   }
@@ -53,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     animationId = requestAnimationFrame(loop);
     if (!running) return;
 
-    if (++count < 10) return;
+    if (++count < frameSpeed) return;
     count = 0;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -61,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     snake.x += snake.dx;
     snake.y += snake.dy;
 
-    // wrap screen
+    // Wrap around
     if (snake.x < 0) snake.x = canvas.width - grid;
     else if (snake.x >= canvas.width) snake.x = 0;
     if (snake.y < 0) snake.y = canvas.height - grid;
@@ -72,63 +77,120 @@ document.addEventListener('DOMContentLoaded', () => {
       snake.cells.pop();
     }
 
-    // draw apple w/ bounce
-    apple.scale = 1 + Math.sin(Date.now() / 200) * 0.1;
-    ctx.fillStyle = 'red';
-    ctx.beginPath();
-    ctx.arc(
-      apple.x + grid / 2,
-      apple.y + grid / 2,
-      (grid / 2 - 2) * apple.scale,
-      0,
-      Math.PI * 2
-    );
-    ctx.fill();
+    // Draw apple
+    if (apple) {
+      apple.scale = 1 + Math.sin(Date.now() / 200) * 0.1;
+      ctx.fillStyle = 'red';
+      ctx.beginPath();
+      ctx.arc(
+        apple.x + grid / 2,
+        apple.y + grid / 2,
+        (grid / 2 - 2) * apple.scale,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+    }
 
-    // draw snake
+    // Draw big apple
+    if (bigApple) {
+      bigApple.scale = 1 + Math.sin(Date.now() / 150) * 0.15;
+      ctx.fillStyle = 'orange';
+      ctx.beginPath();
+      ctx.arc(
+        bigApple.x + grid / 2,
+        bigApple.y + grid / 2,
+        (grid * 0.75) * bigApple.scale,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+    }
+
     snake.cells.forEach((cell, index) => {
-      const alpha = 1 - index / snake.cells.length;
-      ctx.fillStyle = `rgba(0, 128, 0, ${alpha})`;
-      ctx.fillRect(cell.x, cell.y, grid - 1, grid - 1);
+      if (index === 0) {
+        // Head
+        ctx.fillStyle = '#004d00';
+        ctx.fillRect(cell.x, cell.y, grid - 1, grid - 1);
 
-      // eat apple
-      if (cell.x === apple.x && cell.y === apple.y) {
-        snake.maxCells++;
-        placeApple();
-        score++;
-        scoreEl.textContent = score;
+        // Eyes
+        ctx.fillStyle = 'white';
+        const eyeOffset = grid * 0.2;
+        const eyeSize = 2;
+        const [eye1, eye2, tongue] = getHeadDetails(cell, snake.direction);
+
+        ctx.beginPath();
+        ctx.arc(...eye1, eyeSize, 0, Math.PI * 2);
+        ctx.arc(...eye2, eyeSize, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.arc(...eye1, 1, 0, Math.PI * 2);
+        ctx.arc(...eye2, 1, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Tongue
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(...tongue.start);
+        ctx.lineTo(...tongue.end);
+        ctx.stroke();
+      } else {
+        // Body
+        const alpha = 1 - index / snake.cells.length;
+        ctx.fillStyle = `rgba(0, 128, 0, ${alpha})`;
+        ctx.fillRect(cell.x, cell.y, grid - 1, grid - 1);
       }
 
-      // self-collision
+      // Eat apple
+      if (apple && cell.x === apple.x && cell.y === apple.y) {
+        snake.maxCells++;
+        score++;
+        scoreEl.textContent = score;
+        apple = placeApple();
+        if (score % 5 === 0 && !bigApple) {
+          bigApple = placeApple('big');
+        }
+      }
+
+      // Eat big apple
+      if (bigApple && cell.x === bigApple.x && cell.y === bigApple.y) {
+        snake.maxCells += 3;
+        score += 5;
+        scoreEl.textContent = score;
+        bigApple = null;
+      }
+
+      // Self collision
       for (let i = index + 1; i < snake.cells.length; i++) {
         if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
           running = false;
           cancelAnimationFrame(animationId);
           message.textContent = '💀 Game Over';
           message.style.display = 'block';
+          restartBtn.style.display = 'inline-block';
         }
       }
     });
   }
 
-  // Controls - keyboard
+  // Controls
   document.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft' && snake.dx === 0) {
-      snake.dx = -grid; snake.dy = 0;
+      snake.dx = -grid; snake.dy = 0; snake.direction = 'left';
     } else if (e.key === 'ArrowUp' && snake.dy === 0) {
-      snake.dy = -grid; snake.dx = 0;
+      snake.dy = -grid; snake.dx = 0; snake.direction = 'up';
     } else if (e.key === 'ArrowRight' && snake.dx === 0) {
-      snake.dx = grid; snake.dy = 0;
+      snake.dx = grid; snake.dy = 0; snake.direction = 'right';
     } else if (e.key === 'ArrowDown' && snake.dy === 0) {
-      snake.dy = grid; snake.dx = 0;
-    } else if (e.key === ' ' && !running) {
-      initGame();
+      snake.dy = grid; snake.dx = 0; snake.direction = 'down';
     }
   });
 
-  // Swipe controls
+  // Swipe
   let startX = 0, startY = 0;
-
   canvas.addEventListener('touchstart', e => {
     const touch = e.touches[0];
     startX = touch.clientX;
@@ -142,19 +204,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (Math.abs(dx) > Math.abs(dy)) {
       if (dx > 30 && snake.dx === 0) {
-        snake.dx = grid; snake.dy = 0;
+        snake.dx = grid; snake.dy = 0; snake.direction = 'right';
       } else if (dx < -30 && snake.dx === 0) {
-        snake.dx = -grid; snake.dy = 0;
+        snake.dx = -grid; snake.dy = 0; snake.direction = 'left';
       }
     } else {
       if (dy > 30 && snake.dy === 0) {
-        snake.dy = grid; snake.dx = 0;
+        snake.dy = grid; snake.dx = 0; snake.direction = 'down';
       } else if (dy < -30 && snake.dy === 0) {
-        snake.dy = -grid; snake.dx = 0;
+        snake.dy = -grid; snake.dx = 0; snake.direction = 'up';
       }
     }
   });
 
-  // Start game
+  restartBtn.addEventListener('click', initGame);
+
+  function getHeadDetails(cell, direction) {
+    const cx = cell.x + grid / 2;
+    const cy = cell.y + grid / 2;
+    const offset = grid * 0.2;
+
+    let eye1, eye2, tongue;
+    switch (direction) {
+      case 'up':
+        eye1 = [cx - offset, cy - offset];
+        eye2 = [cx + offset, cy - offset];
+        tongue = { start: [cx, cy - grid / 2], end: [cx, cy - grid] };
+        break;
+      case 'down':
+        eye1 = [cx - offset, cy + offset];
+        eye2 = [cx + offset, cy + offset];
+        tongue = { start: [cx, cy + grid / 2], end: [cx, cy + grid] };
+        break;
+      case 'left':
+        eye1 = [cx - offset, cy - offset];
+        eye2 = [cx - offset, cy + offset];
+        tongue = { start: [cx - grid / 2, cy], end: [cx - grid, cy] };
+        break;
+      case 'right':
+      default:
+        eye1 = [cx + offset, cy - offset];
+        eye2 = [cx + offset, cy + offset];
+        tongue = { start: [cx + grid / 2, cy], end: [cx + grid, cy] };
+        break;
+    }
+
+    return [eye1, eye2, tongue];
+  }
+
   initGame();
 });
