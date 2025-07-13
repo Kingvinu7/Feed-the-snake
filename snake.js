@@ -1,13 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
   const message = document.getElementById('message');
 
   const grid = 20;
   let count = 0;
   let running = false;
   let animationId;
-  let snake, apple;
+  let snake, apple, score = 0;
 
   function resizeCanvas() {
     const size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
@@ -22,11 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function placeApple() {
     apple.x = getRandomCell(canvas.width);
     apple.y = getRandomCell(canvas.height);
+    apple.scale = 1;
+    apple.bounce = 1;
   }
 
   function initGame() {
     resizeCanvas();
-
     snake = {
       x: grid * 5,
       y: grid * 5,
@@ -36,10 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
       maxCells: 4
     };
 
-    apple = { x: 0, y: 0 };
+    apple = { x: 0, y: 0, scale: 1, bounce: 1 };
     placeApple();
 
-    count = 0;
+    score = 0;
+    scoreEl.textContent = score;
     message.textContent = '';
     message.style.display = 'none';
     running = true;
@@ -50,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     animationId = requestAnimationFrame(loop);
     if (!running) return;
 
-    if (++count < 15) return; // slower speed
+    if (++count < 10) return;
     count = 0;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -69,22 +72,34 @@ document.addEventListener('DOMContentLoaded', () => {
       snake.cells.pop();
     }
 
-    // draw apple
+    // draw apple w/ bounce
+    apple.scale = 1 + Math.sin(Date.now() / 200) * 0.1;
     ctx.fillStyle = 'red';
-    ctx.fillRect(apple.x, apple.y, grid - 1, grid - 1);
+    ctx.beginPath();
+    ctx.arc(
+      apple.x + grid / 2,
+      apple.y + grid / 2,
+      (grid / 2 - 2) * apple.scale,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
 
     // draw snake
-    ctx.fillStyle = 'green';
     snake.cells.forEach((cell, index) => {
+      const alpha = 1 - index / snake.cells.length;
+      ctx.fillStyle = `rgba(0, 128, 0, ${alpha})`;
       ctx.fillRect(cell.x, cell.y, grid - 1, grid - 1);
 
       // eat apple
       if (cell.x === apple.x && cell.y === apple.y) {
         snake.maxCells++;
         placeApple();
+        score++;
+        scoreEl.textContent = score;
       }
 
-      // collision
+      // self-collision
       for (let i = index + 1; i < snake.cells.length; i++) {
         if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
           running = false;
@@ -96,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Keyboard
+  // Controls - keyboard
   document.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft' && snake.dx === 0) {
       snake.dx = -grid; snake.dy = 0;
@@ -111,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Touch gestures
+  // Swipe controls
   let startX = 0, startY = 0;
 
   canvas.addEventListener('touchstart', e => {
@@ -140,6 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Auto-start
+  // Start game
   initGame();
 });
