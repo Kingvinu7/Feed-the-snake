@@ -3,72 +3,211 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Feed the Snake</title>
+  <title>🐍 Neon Snake Game</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+    
     html, body {
       margin: 0;
       padding: 0;
-      background: #800080;
-      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 50%, #2d2d5f 100%);
+      font-family: 'Orbitron', monospace;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      height: 100vh;
+      min-height: 100vh;
       overflow: hidden;
-      background-image: radial-gradient(#870087 1px, transparent 1px);
-      background-size: 20px 20px;
+      position: relative;
       touch-action: none;
     }
 
+    /* Animated background stars */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+        radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(2px 2px at 160px 30px, #ddd, transparent);
+      background-repeat: repeat;
+      background-size: 200px 100px;
+      animation: sparkle 3s linear infinite;
+      opacity: 0.3;
+    }
+
+    @keyframes sparkle {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-100px); }
+    }
+
+    #gameTitle {
+      font-size: 2.5em;
+      font-weight: 900;
+      color: #00ff88;
+      text-shadow: 
+        0 0 10px #00ff88,
+        0 0 20px #00ff88,
+        0 0 30px #00ff88;
+      margin: 20px 0 10px 0;
+      text-align: center;
+      letter-spacing: 2px;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88, 0 0 30px #00ff88; }
+      to { text-shadow: 0 0 20px #00ff88, 0 0 30px #00ff88, 0 0 40px #00ff88; }
+    }
+
     #score {
-      font-size: 2em;
-      color: white;
+      font-size: 1.5em;
+      font-weight: 700;
+      color: #ff6b6b;
+      text-shadow: 0 0 10px #ff6b6b;
       margin: 10px 0;
+      background: rgba(255, 107, 107, 0.1);
+      padding: 10px 20px;
+      border-radius: 25px;
+      border: 2px solid #ff6b6b;
+      backdrop-filter: blur(10px);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    #gameContainer {
+      position: relative;
+      margin: 20px 0;
     }
 
     canvas {
-      background: rgba(0, 0, 0, 0.15);
-      box-shadow: 0 0 20px #00000088;
-      border-radius: 10px;
+      background: linear-gradient(45deg, rgba(0,0,0,0.8) 0%, rgba(20,20,40,0.9) 100%);
+      box-shadow: 
+        0 0 30px rgba(0, 255, 136, 0.3),
+        inset 0 0 30px rgba(0, 255, 136, 0.1);
+      border-radius: 15px;
+      border: 3px solid #00ff88;
       max-width: 90vw;
-      max-height: 75vh;
+      max-height: 60vh;
       aspect-ratio: 3 / 4;
       touch-action: none;
     }
 
     #restartBtn {
-      margin-top: 10px;
-      padding: 10px 20px;
-      font-size: 1em;
-      background: white;
+      margin-top: 20px;
+      padding: 15px 30px;
+      font-size: 1.1em;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+      color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 25px;
       cursor: pointer;
       display: none;
       touch-action: manipulation;
+      box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    #restartBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 25px rgba(255, 107, 107, 0.7);
+    }
+
+    #restartBtn:active {
+      transform: translateY(0);
     }
 
     #instructions {
-      color: white;
-      font-size: 0.9em;
-      margin-top: 10px;
+      color: #88ddff;
+      font-size: 1em;
+      margin: 20px 0;
       text-align: center;
+      background: rgba(136, 221, 255, 0.1);
+      padding: 15px 25px;
+      border-radius: 20px;
+      border: 2px solid #88ddff;
+      backdrop-filter: blur(10px);
+      max-width: 400px;
+    }
+
+    #instructions .emoji {
+      font-size: 1.5em;
+      margin-right: 10px;
+    }
+
+    .feature-highlight {
+      color: #00ff88;
+      font-weight: 700;
+      text-shadow: 0 0 5px #00ff88;
     }
 
     @media (max-width: 600px) {
-      #instructions {
-        font-size: 0.8em;
+      #gameTitle {
+        font-size: 2em;
       }
+      
+      #score {
+        font-size: 1.2em;
+      }
+      
+      #instructions {
+        font-size: 0.9em;
+        margin: 15px 10px;
+        padding: 12px 20px;
+      }
+    }
+
+    /* Game Over overlay */
+    #gameOver {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: #ff6b6b;
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      font-size: 2em;
+      font-weight: 700;
+      display: none;
+      z-index: 100;
+      border: 3px solid #ff6b6b;
+      box-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
     }
   </style>
 </head>
 <body>
+  <h1 id="gameTitle">🐍 NEON SNAKE</h1>
   <div id="score">Score: 0</div>
-  <canvas id="game"></canvas>
-  <button id="restartBtn">Restart</button>
+  <div id="gameContainer">
+    <canvas id="game"></canvas>
+    <div id="gameOver">
+      GAME OVER!<br>
+      <div style="font-size: 0.6em; margin-top: 10px;">Click Restart to play again</div>
+    </div>
+  </div>
+  <button id="restartBtn">🔄 Restart Game</button>
   <div id="instructions">
-    <div>🖱️ Use arrow keys or swipe to control the snake</div>
+    <span class="emoji">🎮</span>
+    <span class="feature-highlight">Swipe</span> or use <span class="feature-highlight">arrow keys</span> to control<br>
+    <span class="emoji">🔥</span>
+    Snake now <span class="feature-highlight">wraps around</span> the borders!
   </div>
   <script src="snake.js"></script>
 </body>
