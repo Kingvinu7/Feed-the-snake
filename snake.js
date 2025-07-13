@@ -7,10 +7,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const grid = 20;
   let count = 0;
-  let frameSpeed = 15; // lower = slower
+  let frameSpeed = 15; // slower snake
   let running = false;
   let animationId;
   let snake, apple, bigApple, score = 0;
+  let bigAppleTimeout = null;
+  let bigAppleSpawnTime = 0;
+  const BIG_APPLE_LIFETIME = 7000; // ms
+  const BIG_APPLE_MAX_SCORE = 5;
 
   function resizeCanvas() {
     const size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
@@ -46,6 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     apple = placeApple();
     bigApple = null;
+    clearTimeout(bigAppleTimeout);
+    bigAppleTimeout = null;
     score = 0;
     scoreEl.textContent = score;
     message.style.display = 'none';
@@ -66,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
     snake.x += snake.dx;
     snake.y += snake.dy;
 
-    // Wrap around
     if (snake.x < 0) snake.x = canvas.width - grid;
     else if (snake.x >= canvas.width) snake.x = 0;
     if (snake.y < 0) snake.y = canvas.height - grid;
@@ -77,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
       snake.cells.pop();
     }
 
-    // Draw apple
     if (apple) {
       apple.scale = 1 + Math.sin(Date.now() / 200) * 0.1;
       ctx.fillStyle = 'red';
@@ -92,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.fill();
     }
 
-    // Draw big apple
     if (bigApple) {
       bigApple.scale = 1 + Math.sin(Date.now() / 150) * 0.15;
       ctx.fillStyle = 'orange';
@@ -109,19 +112,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     snake.cells.forEach((cell, index) => {
       if (index === 0) {
-        // Head
         ctx.fillStyle = '#004d00';
         ctx.fillRect(cell.x, cell.y, grid - 1, grid - 1);
 
-        // Eyes
-        ctx.fillStyle = 'white';
-        const eyeOffset = grid * 0.2;
-        const eyeSize = 2;
         const [eye1, eye2, tongue] = getHeadDetails(cell, snake.direction);
-
+        ctx.fillStyle = 'white';
         ctx.beginPath();
-        ctx.arc(...eye1, eyeSize, 0, Math.PI * 2);
-        ctx.arc(...eye2, eyeSize, 0, Math.PI * 2);
+        ctx.arc(...eye1, 2, 0, Math.PI * 2);
+        ctx.arc(...eye2, 2, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.fillStyle = 'black';
@@ -130,7 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.arc(...eye2, 1, 0, Math.PI * 2);
         ctx.fill();
 
-        // Tongue
         ctx.strokeStyle = 'red';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -138,13 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineTo(...tongue.end);
         ctx.stroke();
       } else {
-        // Body
         const alpha = 1 - index / snake.cells.length;
         ctx.fillStyle = `rgba(0, 128, 0, ${alpha})`;
         ctx.fillRect(cell.x, cell.y, grid - 1, grid - 1);
       }
 
-      // Eat apple
       if (apple && cell.x === apple.x && cell.y === apple.y) {
         snake.maxCells++;
         score++;
@@ -152,18 +147,26 @@ document.addEventListener('DOMContentLoaded', () => {
         apple = placeApple();
         if (score % 5 === 0 && !bigApple) {
           bigApple = placeApple('big');
+          bigAppleSpawnTime = Date.now();
+          bigAppleTimeout = setTimeout(() => {
+            bigApple = null;
+          }, BIG_APPLE_LIFETIME);
         }
       }
 
-      // Eat big apple
       if (bigApple && cell.x === bigApple.x && cell.y === bigApple.y) {
-        snake.maxCells += 3;
-        score += 5;
+        const timeAlive = Date.now() - bigAppleSpawnTime;
+        const decay = timeAlive / BIG_APPLE_LIFETIME;
+        const gainedScore = Math.max(1, Math.floor(BIG_APPLE_MAX_SCORE * (1 - decay)));
+
+        snake.maxCells += gainedScore;
+        score += gainedScore;
         scoreEl.textContent = score;
+
+        clearTimeout(bigAppleTimeout);
         bigApple = null;
       }
 
-      // Self collision
       for (let i = index + 1; i < snake.cells.length; i++) {
         if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
           running = false;
@@ -176,7 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Controls
   document.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft' && snake.dx === 0) {
       snake.dx = -grid; snake.dy = 0; snake.direction = 'left';
@@ -189,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Swipe
   let startX = 0, startY = 0;
   canvas.addEventListener('touchstart', e => {
     const touch = e.touches[0];
