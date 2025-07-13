@@ -1,168 +1,168 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const restartBtn = document.getElementById('restartBtn');
 
 let tileSize = 20;
-let cols = 20;
-let rows = 35;
+let cols, rows;
 
-canvas.width = tileSize * cols;
-canvas.height = tileSize * rows;
+function resizeCanvas() {
+  const maxWidth = window.innerWidth * 0.9;
+  const maxHeight = window.innerHeight * 0.75;
+  const aspectRatio = 3 / 4;
 
-let snake, direction, apple, bigApple, score, gameOver, frameCount;
-let bigAppleTimer = 0;
-const BIG_APPLE_LIFETIME = 300;
-const BIG_APPLE_INITIAL_SCORE = 200;
+  let width = maxWidth;
+  let height = width / aspectRatio;
 
-function restartGame() {
-  snake = [{ x: 10, y: 17 }];
+  if (height > maxHeight) {
+    height = maxHeight;
+    width = height * aspectRatio;
+  }
+
+  canvas.width = width;
+  canvas.height = height;
+
+  tileSize = Math.floor(width / 30);
+  cols = Math.floor(width / tileSize);
+  rows = Math.floor(height / tileSize);
+}
+
+resizeCanvas();
+window.addEventListener("resize", () => location.reload());
+
+let snake, direction, apple, bigApple, score, gameInterval, bigAppleTimer;
+
+function resetGame() {
+  snake = [{ x: 5, y: 5 }];
   direction = { x: 1, y: 0 };
-  apple = spawnApple();
+  apple = randomPosition();
   bigApple = null;
   score = 0;
-  gameOver = false;
-  frameCount = 0;
-  bigAppleTimer = 0;
-  document.getElementById("score").textContent = `Score: ${score}`;
-  document.getElementById("restartBtn").style.display = "none";
-  requestAnimationFrame(gameLoop);
+  updateScore();
+  clearInterval(gameInterval);
+  gameInterval = setInterval(gameLoop, 200); // Slow speed
+  restartBtn.style.display = "none";
 }
 
-function spawnApple() {
-  let pos;
-  do {
-    pos = {
-      x: Math.floor(Math.random() * cols),
-      y: Math.floor(Math.random() * rows),
-    };
-  } while (snake.some(segment => segment.x === pos.x && segment.y === pos.y));
-  return pos;
+function randomPosition() {
+  return {
+    x: Math.floor(Math.random() * cols),
+    y: Math.floor(Math.random() * rows)
+  };
 }
 
-function drawRect(x, y, color) {
-  ctx.fillStyle = color;
-  ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-}
-
-function drawSnake() {
-  snake.forEach((segment, index) => {
-    drawRect(segment.x, segment.y, index === 0 ? "green" : "#004d00");
-  });
-
-  // Add eyes and tongue on head
-  const head = snake[0];
-  ctx.fillStyle = "white";
-  ctx.beginPath();
-  ctx.arc(head.x * tileSize + 5, head.y * tileSize + 5, 2, 0, 2 * Math.PI);
-  ctx.arc(head.x * tileSize + 15, head.y * tileSize + 5, 2, 0, 2 * Math.PI);
-  ctx.fill();
-
-  ctx.fillStyle = "red";
-  if (direction.x !== 0) {
-    ctx.fillRect(
-      head.x * tileSize + (direction.x === 1 ? tileSize : -4),
-      head.y * tileSize + 8,
-      4,
-      4
-    );
-  } else {
-    ctx.fillRect(
-      head.x * tileSize + 8,
-      head.y * tileSize + (direction.y === 1 ? tileSize : -4),
-      4,
-      4
-    );
-  }
+function updateScore() {
+  scoreEl.textContent = `Score: ${score}`;
 }
 
 function gameLoop() {
-  if (gameOver) return;
+  const head = { ...snake[0] };
+  head.x += direction.x;
+  head.y += direction.y;
 
-  frameCount++;
-  if (frameCount % 12 !== 0) {
-    requestAnimationFrame(gameLoop);
-    return;
-  }
-
-  const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
-
-  // wall or self collision
   if (
-    head.x < 0 ||
-    head.y < 0 ||
-    head.x >= cols ||
-    head.y >= rows ||
+    head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows ||
     snake.some(segment => segment.x === head.x && segment.y === head.y)
   ) {
-    gameOver = true;
-    document.getElementById("restartBtn").style.display = "block";
+    clearInterval(gameInterval);
+    restartBtn.style.display = "block";
     return;
   }
 
   snake.unshift(head);
 
-  let ateApple = head.x === apple.x && head.y === apple.y;
-  let ateBigApple = bigApple && head.x === bigApple.x && head.y === bigApple.y;
-
-  if (ateApple) {
+  if (head.x === apple.x && head.y === apple.y) {
     score += 5;
-    apple = spawnApple();
-    bigAppleTimer++;
-    if (bigAppleTimer === 5) {
-      bigApple = { ...spawnApple(), life: BIG_APPLE_LIFETIME };
-      bigAppleTimer = 0;
+    apple = randomPosition();
+    if (score >= 25 && !bigApple) {
+      spawnBigApple();
     }
-  } else if (ateBigApple) {
-    let bonus = Math.max(1, Math.floor((bigApple.life / BIG_APPLE_LIFETIME) * BIG_APPLE_INITIAL_SCORE));
-    score += bonus;
+  } else if (bigApple && head.x === bigApple.x && head.y === bigApple.y) {
+    score += Math.max(5, bigApple.value);
     bigApple = null;
+    clearTimeout(bigAppleTimer);
   } else {
     snake.pop();
   }
 
-  if (bigApple) {
-    bigApple.life--;
-    if (bigApple.life <= 0) {
-      bigApple = null;
-    }
-  }
-
-  document.getElementById("score").textContent = `Score: ${score}`;
-
-  // Draw
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawRect(apple.x, apple.y, "red");
-  if (bigApple) drawRect(bigApple.x, bigApple.y, "orange");
-  drawSnake();
-
-  requestAnimationFrame(gameLoop);
+  updateScore();
+  drawGame();
 }
 
-// Control
-document.addEventListener("keydown", e => {
-  if (e.key === "ArrowUp" && direction.y === 0) direction = { x: 0, y: -1 };
-  if (e.key === "ArrowDown" && direction.y === 0) direction = { x: 0, y: 1 };
-  if (e.key === "ArrowLeft" && direction.x === 0) direction = { x: -1, y: 0 };
-  if (e.key === "ArrowRight" && direction.x === 0) direction = { x: 1, y: 0 };
-});
+function spawnBigApple() {
+  bigApple = randomPosition();
+  bigApple.value = 200;
+  const decayRate = 5;
 
-// Swipe support
-let touchStartX = null;
-let touchStartY = null;
-canvas.addEventListener("touchstart", e => {
-  touchStartX = e.touches[0].clientX;
-  touchStartY = e.touches[0].clientY;
-});
-canvas.addEventListener("touchend", e => {
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  const dy = e.changedTouches[0].clientY - touchStartY;
+  bigAppleTimer = setInterval(() => {
+    bigApple.value -= decayRate;
+    if (bigApple.value <= 0) {
+      clearInterval(bigAppleTimer);
+      bigApple = null;
+    }
+  }, 500);
+}
 
-  if (Math.abs(dx) > Math.abs(dy)) {
-    if (dx > 0 && direction.x === 0) direction = { x: 1, y: 0 };
-    else if (dx < 0 && direction.x === 0) direction = { x: -1, y: 0 };
-  } else {
-    if (dy > 0 && direction.y === 0) direction = { x: 0, y: 1 };
-    else if (dy < 0 && direction.y === 0) direction = { x: 0, y: -1 };
+function drawGame() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw apple
+  ctx.fillStyle = 'red';
+  ctx.beginPath();
+  ctx.arc(
+    apple.x * tileSize + tileSize / 2,
+    apple.y * tileSize + tileSize / 2,
+    tileSize / 2.5,
+    0, Math.PI * 2
+  );
+  ctx.fill();
+
+  // Draw big apple
+  if (bigApple) {
+    ctx.fillStyle = 'orange';
+    ctx.beginPath();
+    ctx.arc(
+      bigApple.x * tileSize + tileSize / 2,
+      bigApple.y * tileSize + tileSize / 2,
+      tileSize / 1.8,
+      0, Math.PI * 2
+    );
+    ctx.fill();
   }
+
+  // Draw snake
+  snake.forEach((segment, i) => {
+    ctx.fillStyle = i === 0 ? '#006400' : `rgba(0, 100, 0, ${1 - i / snake.length})`;
+    ctx.fillRect(segment.x * tileSize, segment.y * tileSize, tileSize, tileSize);
+
+    if (i === 0) {
+      // Eyes
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.arc(segment.x * tileSize + tileSize * 0.3, segment.y * tileSize + tileSize * 0.3, 2, 0, 2 * Math.PI);
+      ctx.arc(segment.x * tileSize + tileSize * 0.7, segment.y * tileSize + tileSize * 0.3, 2, 0, 2 * Math.PI);
+      ctx.fill();
+
+      // Tongue
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const tx = segment.x * tileSize + tileSize / 2 + direction.x * tileSize / 2;
+      const ty = segment.y * tileSize + tileSize / 2 + direction.y * tileSize / 2;
+      ctx.moveTo(segment.x * tileSize + tileSize / 2, segment.y * tileSize + tileSize / 2);
+      ctx.lineTo(tx, ty);
+      ctx.stroke();
+    }
+  });
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowUp' && direction.y !== 1) direction = { x: 0, y: -1 };
+  if (e.key === 'ArrowDown' && direction.y !== -1) direction = { x: 0, y: 1 };
+  if (e.key === 'ArrowLeft' && direction.x !== 1) direction = { x: -1, y: 0 };
+  if (e.key === 'ArrowRight' && direction.x !== -1) direction = { x: 1, y: 0 };
 });
 
-restartGame();
+restartBtn.addEventListener('click', resetGame);
+
+resetGame();
