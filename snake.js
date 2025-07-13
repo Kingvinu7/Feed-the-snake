@@ -31,6 +31,7 @@ resizeCanvas();
 window.addEventListener("resize", () => location.reload());
 
 let snake, direction, apple, bigApple, score, gameInterval, bigAppleTimer;
+let gameStarted = false;
 
 function resetGame() {
   snake = [{ x: 5, y: 5 }];
@@ -38,6 +39,7 @@ function resetGame() {
   apple = randomPosition();
   bigApple = null;
   score = 0;
+  gameStarted = true;
   updateScore();
   clearInterval(gameInterval);
   gameInterval = setInterval(gameLoop, 200); // Slow speed
@@ -56,6 +58,8 @@ function updateScore() {
 }
 
 function gameLoop() {
+  if (!gameStarted) return;
+  
   const head = { ...snake[0] };
   head.x += direction.x;
   head.y += direction.y;
@@ -65,6 +69,7 @@ function gameLoop() {
     snake.some(segment => segment.x === head.x && segment.y === head.y)
   ) {
     clearInterval(gameInterval);
+    gameStarted = false;
     restartBtn.style.display = "block";
     return;
   }
@@ -156,13 +161,65 @@ function drawGame() {
   });
 }
 
+// Keyboard controls
 document.addEventListener('keydown', e => {
+  if (!gameStarted) return;
   if (e.key === 'ArrowUp' && direction.y !== 1) direction = { x: 0, y: -1 };
   if (e.key === 'ArrowDown' && direction.y !== -1) direction = { x: 0, y: 1 };
   if (e.key === 'ArrowLeft' && direction.x !== 1) direction = { x: -1, y: 0 };
   if (e.key === 'ArrowRight' && direction.x !== -1) direction = { x: 1, y: 0 };
 });
 
+// Touch controls for mobile
+let touchStartX = 0;
+let touchStartY = 0;
+
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+});
+
+canvas.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  if (!gameStarted) return;
+  
+  const touchEndX = e.changedTouches[0].clientX;
+  const touchEndY = e.changedTouches[0].clientY;
+  
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+  
+  const minSwipeDistance = 30;
+  
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    // Horizontal swipe
+    if (Math.abs(deltaX) > minSwipeDistance) {
+      if (deltaX > 0 && direction.x !== -1) {
+        direction = { x: 1, y: 0 }; // Right
+      } else if (deltaX < 0 && direction.x !== 1) {
+        direction = { x: -1, y: 0 }; // Left
+      }
+    }
+  } else {
+    // Vertical swipe
+    if (Math.abs(deltaY) > minSwipeDistance) {
+      if (deltaY > 0 && direction.y !== -1) {
+        direction = { x: 0, y: 1 }; // Down
+      } else if (deltaY < 0 && direction.y !== 1) {
+        direction = { x: 0, y: -1 }; // Up
+      }
+    }
+  }
+});
+
+// Prevent scrolling on touch
+document.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+}, { passive: false });
+
 restartBtn.addEventListener('click', resetGame);
 
+// Start the game
 resetGame();
+drawGame();
