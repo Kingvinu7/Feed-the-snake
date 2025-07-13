@@ -9,6 +9,16 @@ const btns = {
   right: document.getElementById('right')
 };
 
+// Responsive canvas setup
+function resizeCanvas() {
+  const size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
+  canvas.width = size;
+  canvas.height = size;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Game variables
 const grid = 20;
 let count = 0;
 let running = false;
@@ -38,24 +48,16 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-function drawApplePop() {
-  const x = apple.x;
-  const y = apple.y;
+function drawApple() {
   ctx.fillStyle = 'red';
-  ctx.fillRect(x, y, grid - 1, grid - 1);
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(x + grid / 2, y + grid / 2, grid / 3, 0, 2 * Math.PI);
-  ctx.fillStyle = 'orange';
-  ctx.fill();
-  ctx.restore();
+  ctx.fillRect(apple.x, apple.y, grid - 1, grid - 1);
 }
 
 function loop() {
   animationId = requestAnimationFrame(loop);
   if (!running) return;
 
-  if (++count < 4) return;
+  if (++count < 10) return; // Slowed snake
   count = 0;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -63,17 +65,20 @@ function loop() {
   snake.x += snake.dx;
   snake.y += snake.dy;
 
-  // Wrap around edges
+  // wrap screen
   if (snake.x < 0) snake.x = canvas.width - grid;
   else if (snake.x >= canvas.width) snake.x = 0;
+
   if (snake.y < 0) snake.y = canvas.height - grid;
   else if (snake.y >= canvas.height) snake.y = 0;
 
   snake.cells.unshift({ x: snake.x, y: snake.y });
-  if (snake.cells.length > snake.maxCells) snake.cells.pop();
+  if (snake.cells.length > snake.maxCells) {
+    snake.cells.pop();
+  }
 
-  // Draw apple with animation
-  drawApplePop();
+  // Draw apple
+  drawApple();
 
   // Draw snake
   ctx.fillStyle = 'green';
@@ -83,8 +88,8 @@ function loop() {
     // Eat apple
     if (cell.x === apple.x && cell.y === apple.y) {
       snake.maxCells++;
-      apple.x = getRandomInt(0, 25) * grid;
-      apple.y = getRandomInt(0, 25) * grid;
+      apple.x = getRandomInt(0, canvas.width / grid) * grid;
+      apple.y = getRandomInt(0, canvas.height / grid) * grid;
     }
 
     // Self collision
@@ -119,6 +124,7 @@ function changeDirection(dir) {
   }
 }
 
+// Start game
 startBtn.addEventListener('click', () => {
   initGame();
   running = true;
@@ -126,6 +132,7 @@ startBtn.addEventListener('click', () => {
   loop();
 });
 
+// Keyboard controls
 document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft') changeDirection('left');
   if (e.key === 'ArrowUp') changeDirection('up');
@@ -133,7 +140,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowDown') changeDirection('down');
 });
 
-// Mobile / Touch buttons
+// On-screen button controls
 btns.left.onclick = () => changeDirection('left');
 btns.right.onclick = () => changeDirection('right');
 btns.up.onclick = () => changeDirection('up');
