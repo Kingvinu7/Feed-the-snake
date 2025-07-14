@@ -42,6 +42,7 @@ window.addEventListener("resize", () => location.reload());
 let snake, direction, apple, bigApple, score, gameInterval, bigAppleTimer;
 let gameStarted = false;
 let highScoresVisible = false;
+let applesEaten = 0;
 
 // High Scores Management
 function getHighScores() {
@@ -103,6 +104,13 @@ function toggleHighScores() {
     setTimeout(() => {
       highScoresContainer.style.display = 'none';
     }, 300);
+  }
+}
+
+function clearHighScores() {
+  if (confirm('Are you sure you want to clear all high scores? This cannot be undone.')) {
+    localStorage.removeItem('snakeHighScores');
+    displayHighScores();
   }
 }
 
@@ -176,8 +184,9 @@ function gameLoop() {
   snake.pop();
 }
 
-updateScore();
-drawGame();
+  updateScore();
+  drawGame();
+}
 
 function showGameOver() {
   finalScoreEl.textContent = `Final Score: ${score}`;
