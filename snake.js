@@ -98,12 +98,6 @@ function toggleHighScores() {
   }
 }
 
-function clearHighScores() {
-  if (confirm('Are you sure you want to clear all high scores?')) {
-    localStorage.removeItem('snakeHighScores');
-    displayHighScores();
-  }
-}
 
 function resetGame() {
   snake = [{ x: 5, y: 5 }];
@@ -187,12 +181,12 @@ function showGameOver() {
 }
 
 function shareScore() {
-  const message = `🐍 I just scored ${score} points in Neon Snake! Can you beat my score? Play now: ${window.location.href}`;
+  const message = `🐍 I just scored ${score} points in Feed The Snake! Can you beat my score? Play now: ${window.location.href}`;
   
   // Check if Web Share API is supported
   if (navigator.share) {
     navigator.share({
-      title: '🐍 Neon Snake Game',
+      title: '🐍 Feed The Snake',
       text: message,
       url: window.location.href
     }).catch(err => {
