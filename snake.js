@@ -104,6 +104,7 @@ function resetGame() {
   direction = { x: 1, y: 0 };
   apple = randomPosition();
   bigApple = null;
+  applesEaten = 0;
   score = 0;
   gameStarted = true;
   updateScore();
