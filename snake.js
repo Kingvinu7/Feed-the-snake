@@ -149,22 +149,26 @@ function gameLoop() {
   snake.unshift(head);
 
   if (head.x === apple.x && head.y === apple.y) {
-    score += 5;
-    apple = randomPosition();
-    if (score >= 25 && !bigApple) {
-      spawnBigApple();
-    }
-  } else if (bigApple && head.x === bigApple.x && head.y === bigApple.y) {
-    score += Math.max(5, bigApple.value);
-    bigApple = null;
-    clearTimeout(bigAppleTimer);
-  } else {
-    snake.pop();
+  score += 5;
+  applesEaten++; // Track actual apples eaten
+  apple = randomPosition();
+
+  // Spawn big apple every 5 small apples eaten (i.e. after 5, 10, 15, etc.)
+  if (applesEaten % 5 === 0 && !bigApple) {
+    spawnBigApple();
   }
 
-  updateScore();
-  drawGame();
+} else if (bigApple && head.x === bigApple.x && head.y === bigApple.y) {
+  score += Math.max(5, bigApple.value);
+  bigApple = null;
+  clearTimeout(bigAppleTimer);
+
+} else {
+  snake.pop();
 }
+
+updateScore();
+drawGame();
 
 function showGameOver() {
   finalScoreEl.textContent = `Final Score: ${score}`;
