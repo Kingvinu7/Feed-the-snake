@@ -164,14 +164,38 @@
     }
 
     #highScoresContainer {
-      margin: 15px 0;
-      padding: 20px;
-      background: rgba(255, 215, 0, 0.1);
-      border: 2px solid #FFD700;
-      border-radius: 15px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      z-index: 1000;
+      overflow-y: auto;
       backdrop-filter: blur(10px);
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    #highScoresModal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: linear-gradient(135deg, #1a1a3a 0%, #2d2d5f 100%);
+      border: 3px solid #FFD700;
+      border-radius: 20px;
+      padding: 30px;
       max-width: 90vw;
-      box-sizing: border-box;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+      transition: transform 0.3s ease-out;
+    }
+
+    #highScoresContainer.show #highScoresModal {
+      transform: translate(-50%, -50%) scale(1);
     }
 
     #highScoresTitle {
@@ -211,10 +235,30 @@
       background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
       color: white;
       box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
-      margin-top: 10px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
+      margin: 10px 5px;
+      display: inline-block;
+    }
+
+    #closeHighScoresBtn {
+      padding: 8px 16px;
+      font-size: 0.9em;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: all 0.3s ease;
+      background: linear-gradient(45deg, #88ddff, #aaeeff);
+      color: #1a1a3a;
+      box-shadow: 0 0 15px rgba(136, 221, 255, 0.3);
+      margin: 10px 5px;
+      display: inline-block;
+    }
+
+    #modalButtons {
+      text-align: center;
+      margin-top: 20px;
     }
 
     #restartBtn:hover, #shareBtn:hover, #highScoresBtn:hover {
@@ -238,7 +282,12 @@
       box-shadow: 0 3px 20px rgba(255, 107, 107, 0.5);
     }
 
-    #restartBtn:active, #shareBtn:active, #highScoresBtn:active, #clearHighScoresBtn:active {
+    #closeHighScoresBtn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 20px rgba(136, 221, 255, 0.5);
+    }
+
+    #restartBtn:active, #shareBtn:active, #highScoresBtn:active, #clearHighScoresBtn:active, #closeHighScoresBtn:active {
       transform: translateY(0);
     }
 
@@ -359,10 +408,15 @@
     <button id="shareBtn">📤 Share Score</button>
     <button id="highScoresBtn">🏆 High Scores</button>
   </div>
-  <div id="highScoresContainer" style="display: none;">
-    <h3 id="highScoresTitle">🏆 High Scores</h3>
-    <div id="highScoresList"></div>
-    <button id="clearHighScoresBtn">🗑️ Clear Scores</button>
+  <div id="highScoresContainer">
+    <div id="highScoresModal">
+      <h3 id="highScoresTitle">🏆 High Scores Leaderboard</h3>
+      <div id="highScoresList"></div>
+      <div id="modalButtons">
+        <button id="clearHighScoresBtn">🗑️ Clear Scores</button>
+        <button id="closeHighScoresBtn">❌ Close</button>
+      </div>
+    </div>
   </div>
   <div id="instructions">
     <span class="emoji">🎮</span>
