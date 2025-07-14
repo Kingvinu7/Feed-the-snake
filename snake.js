@@ -15,23 +15,25 @@ let tileSize = 20;
 let cols, rows;
 
 function resizeCanvas() {
-  const maxWidth = window.innerWidth * 0.9;
-  const maxHeight = window.innerHeight * 0.5;
-  const aspectRatio = 3 / 4;
-
+  // Farcaster miniapp optimized dimensions - more vertical, mobile-friendly
+  const maxWidth = Math.min(window.innerWidth * 0.95, 400); // Max width 400px for miniapp
+  const aspectRatio = 9 / 16; // Vertical aspect ratio for mobile miniapps
+  
   let width = maxWidth;
   let height = width / aspectRatio;
-
-  if (height > maxHeight) {
-    height = maxHeight;
+  
+  // Ensure minimum height for gameplay
+  const minHeight = 500;
+  if (height < minHeight) {
+    height = minHeight;
     width = height * aspectRatio;
   }
 
   canvas.width = width;
   canvas.height = height;
 
-  // Increased tile size for bigger snake and apple
-  tileSize = Math.floor(width / 25); // Changed from 30 to 25 for bigger elements
+  // Optimized tile size for Farcaster miniapp
+  tileSize = Math.floor(width / 20); // Smaller grid for miniapp format
   cols = Math.floor(width / tileSize);
   rows = Math.floor(height / tileSize);
 }
@@ -149,13 +151,19 @@ function gameLoop() {
   head.x += direction.x;
   head.y += direction.y;
 
-  // Wrap around borders instead of dying
-  if (head.x < 0) head.x = cols - 1;
-  if (head.x >= cols) head.x = 0;
+  // Wall collision on left and right sides
+  if (head.x < 0 || head.x >= cols) {
+    clearInterval(gameInterval);
+    gameStarted = false;
+    showGameOver();
+    return;
+  }
+
+  // Wrap around top and bottom borders only
   if (head.y < 0) head.y = rows - 1;
   if (head.y >= rows) head.y = 0;
 
-  // Only die when hitting itself
+  // Die when hitting itself
   if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
     clearInterval(gameInterval);
     gameStarted = false;
@@ -258,6 +266,36 @@ function spawnBigApple() {
 
 function drawGame() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw left and right walls
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(255, 107, 107, 0.3)';
+  
+  // Left wall
+  ctx.fillRect(0, 0, tileSize / 2, canvas.height);
+  
+  // Right wall  
+  ctx.fillRect(canvas.width - tileSize / 2, 0, tileSize / 2, canvas.height);
+  
+  // Wall glow effect
+  ctx.shadowColor = '#ff6b6b';
+  ctx.shadowBlur = 10;
+  ctx.strokeStyle = '#ff6b6b';
+  ctx.lineWidth = 2;
+  
+  // Left wall border
+  ctx.beginPath();
+  ctx.moveTo(tileSize / 2, 0);
+  ctx.lineTo(tileSize / 2, canvas.height);
+  ctx.stroke();
+  
+  // Right wall border
+  ctx.beginPath();
+  ctx.moveTo(canvas.width - tileSize / 2, 0);
+  ctx.lineTo(canvas.width - tileSize / 2, canvas.height);
+  ctx.stroke();
+  
+  ctx.shadowBlur = 0;
 
   // Draw apple with neon glow (increased size)
   ctx.shadowColor = '#ff4444';

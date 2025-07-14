@@ -99,9 +99,10 @@
         inset 0 0 30px rgba(0, 255, 136, 0.1);
       border-radius: 15px;
       border: 3px solid #00ff88;
-      max-width: 90vw;
-      max-height: 50vh;
-      aspect-ratio: 3 / 4;
+      max-width: 95vw;
+      max-height: 70vh;
+      width: 100%;
+      aspect-ratio: 9 / 16;
       touch-action: none;
     }
 
@@ -318,28 +319,30 @@
 
     @media (max-width: 600px) {
       #gameTitle {
-        font-size: 1.8em;
-        margin: 8px 0 4px 0;
+        font-size: 1.6em;
+        margin: 5px 0 3px 0;
       }
       
       #score {
-        font-size: 1.1em;
-        padding: 6px 12px;
+        font-size: 1.0em;
+        padding: 5px 10px;
       }
       
       canvas {
-        max-height: 45vh;
+        max-height: 75vh;
+        max-width: 98vw;
       }
       
       #instructions {
-        font-size: 0.8em;
-        margin: 8px 5px;
-        padding: 8px 15px;
+        font-size: 0.75em;
+        margin: 5px 3px;
+        padding: 6px 12px;
       }
       
-      #restartBtn, #shareBtn {
-        padding: 10px 20px;
-        font-size: 0.9em;
+      #restartBtn, #shareBtn, #highScoresBtn {
+        padding: 8px 16px;
+        font-size: 0.85em;
+        margin: 3px;
       }
     }
 
@@ -422,7 +425,7 @@
     <span class="emoji">🎮</span>
     <span class="feature-highlight">Swipe</span> or use <span class="feature-highlight">arrow keys</span> to control<br>
     <span class="emoji">🔥</span>
-    Snake now <span class="feature-highlight">wraps around</span> the borders!
+    Snake <span class="feature-highlight">wraps</span> top/bottom, but hits <span class="feature-highlight">walls</span> left/right!
   </div>
   <script src="snake.js"></script>
 </body>
