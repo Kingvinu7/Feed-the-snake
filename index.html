@@ -89,7 +89,6 @@
     #gameContainer {
       position: relative;
       margin: 10px 0;
-      overflow: hidden;
     }
 
     canvas {
@@ -111,8 +110,6 @@
       align-items: center;
       gap: 10px;
       margin-top: 10px;
-      position: relative;
-      z-index: 50;
     }
 
     #restartBtn, #shareBtn {
@@ -128,8 +125,6 @@
       text-transform: uppercase;
       letter-spacing: 1px;
       display: none;
-      position: relative;
-      z-index: 100;
     }
 
     #restartBtn {
@@ -144,80 +139,7 @@
       box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
     }
 
-    #highScoresBtn {
-      padding: 12px 24px;
-      font-size: 1em;
-      font-family: 'Orbitron', monospace;
-      font-weight: 700;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      touch-action: manipulation;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      background: linear-gradient(45deg, #FFD700, #FFA500);
-      color: #1a1a3a;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-      position: relative;
-      z-index: 100;
-    }
-
-    #highScoresContainer {
-      margin: 15px 0;
-      padding: 20px;
-      background: rgba(255, 215, 0, 0.1);
-      border: 2px solid #FFD700;
-      border-radius: 15px;
-      backdrop-filter: blur(10px);
-      max-width: 90vw;
-      box-sizing: border-box;
-    }
-
-    #highScoresTitle {
-      color: #FFD700;
-      font-size: 1.4em;
-      font-weight: 700;
-      text-shadow: 0 0 10px #FFD700;
-      margin: 0 0 15px 0;
-      text-align: center;
-    }
-
-    #highScoresList {
-      color: #88ddff;
-      font-size: 1em;
-      line-height: 1.6;
-      text-align: center;
-    }
-
-    .high-score-item {
-      margin: 8px 0;
-      padding: 8px 15px;
-      background: rgba(136, 221, 255, 0.1);
-      border-radius: 10px;
-      border: 1px solid #88ddff;
-    }
-
-    #clearHighScoresBtn {
-      padding: 8px 16px;
-      font-size: 0.9em;
-      font-family: 'Orbitron', monospace;
-      font-weight: 700;
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      touch-action: manipulation;
-      transition: all 0.3s ease;
-      background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-      color: white;
-      box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
-      margin-top: 10px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    #restartBtn:hover, #shareBtn:hover, #highScoresBtn:hover {
+    #restartBtn:hover, #shareBtn:hover {
       transform: translateY(-2px);
     }
 
@@ -229,16 +151,7 @@
       box-shadow: 0 5px 25px rgba(76, 175, 80, 0.7);
     }
 
-    #highScoresBtn:hover {
-      box-shadow: 0 5px 25px rgba(255, 215, 0, 0.7);
-    }
-
-    #clearHighScoresBtn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 3px 20px rgba(255, 107, 107, 0.5);
-    }
-
-    #restartBtn:active, #shareBtn:active, #highScoresBtn:active, #clearHighScoresBtn:active {
+    #restartBtn:active, #shareBtn:active {
       transform: translateY(0);
     }
 
@@ -308,12 +221,10 @@
       font-size: 1.5em;
       font-weight: 700;
       display: none;
-      z-index: 10;
+      z-index: 100;
       border: 3px solid #ff6b6b;
       box-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
       min-width: 250px;
-      max-width: 90%;
-      max-height: 80%;
     }
 
     #gameOver .title {
@@ -357,12 +268,6 @@
   <div id="controlsContainer">
     <button id="restartBtn">🔄 Restart Game</button>
     <button id="shareBtn">📤 Share Score</button>
-    <button id="highScoresBtn">🏆 High Scores</button>
-  </div>
-  <div id="highScoresContainer" style="display: none;">
-    <h3 id="highScoresTitle">🏆 High Scores</h3>
-    <div id="highScoresList"></div>
-    <button id="clearHighScoresBtn">🗑️ Clear Scores</button>
   </div>
   <div id="instructions">
     <span class="emoji">🎮</span>
