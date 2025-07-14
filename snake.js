@@ -181,10 +181,9 @@ function showGameOver() {
     saveHighScore(score);
   }
   
-  setTimeout(() => {
-    restartBtn.style.display = "block";
-    shareBtn.style.display = "block";
-  }, 1000);
+  // Show buttons immediately - no delay
+  restartBtn.style.display = "block";
+  shareBtn.style.display = "block";
 }
 
 function shareScore() {
