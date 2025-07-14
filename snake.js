@@ -2,14 +2,16 @@ const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
 const restartBtn = document.getElementById('restartBtn');
+const shareBtn = document.getElementById('shareBtn');
 const gameOverEl = document.getElementById('gameOver');
+const finalScoreEl = document.getElementById('finalScore');
 
 let tileSize = 20;
 let cols, rows;
 
 function resizeCanvas() {
   const maxWidth = window.innerWidth * 0.9;
-  const maxHeight = window.innerHeight * 0.6;
+  const maxHeight = window.innerHeight * 0.5;
   const aspectRatio = 3 / 4;
 
   let width = maxWidth;
@@ -23,7 +25,8 @@ function resizeCanvas() {
   canvas.width = width;
   canvas.height = height;
 
-  tileSize = Math.floor(width / 30);
+  // Increased tile size for bigger snake and apple
+  tileSize = Math.floor(width / 25); // Changed from 30 to 25 for bigger elements
   cols = Math.floor(width / tileSize);
   rows = Math.floor(height / tileSize);
 }
@@ -43,8 +46,9 @@ function resetGame() {
   gameStarted = true;
   updateScore();
   clearInterval(gameInterval);
-  gameInterval = setInterval(gameLoop, 180); // Slightly faster
+  gameInterval = setInterval(gameLoop, 180);
   restartBtn.style.display = "none";
+  shareBtn.style.display = "none";
   gameOverEl.style.display = "none";
 }
 
@@ -76,10 +80,7 @@ function gameLoop() {
   if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
     clearInterval(gameInterval);
     gameStarted = false;
-    gameOverEl.style.display = "block";
-    setTimeout(() => {
-      restartBtn.style.display = "block";
-    }, 1000);
+    showGameOver();
     return;
   }
 
@@ -103,6 +104,56 @@ function gameLoop() {
   drawGame();
 }
 
+function showGameOver() {
+  finalScoreEl.textContent = `Final Score: ${score}`;
+  gameOverEl.style.display = "block";
+  
+  setTimeout(() => {
+    restartBtn.style.display = "block";
+    shareBtn.style.display = "block";
+  }, 1000);
+}
+
+function shareScore() {
+  const message = `🐍 I just scored ${score} points in Neon Snake! Can you beat my score? Play now: ${window.location.href}`;
+  
+  // Check if Web Share API is supported
+  if (navigator.share) {
+    navigator.share({
+      title: '🐍 Neon Snake Game',
+      text: message,
+      url: window.location.href
+    }).catch(err => {
+      console.log('Error sharing:', err);
+      fallbackShare(message);
+    });
+  } else {
+    fallbackShare(message);
+  }
+}
+
+function fallbackShare(message) {
+  // Fallback: copy to clipboard
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(message).then(() => {
+      // Visual feedback
+      shareBtn.textContent = '✅ Copied!';
+      shareBtn.style.background = 'linear-gradient(45deg, #4CAF50, #66BB6A)';
+      
+      setTimeout(() => {
+        shareBtn.textContent = '📤 Share Score';
+        shareBtn.style.background = 'linear-gradient(45deg, #4CAF50, #66BB6A)';
+      }, 2000);
+    }).catch(() => {
+      // If clipboard fails, show manual copy option
+      prompt('Copy this message to share your score:', message);
+    });
+  } else {
+    // Final fallback: show prompt
+    prompt('Copy this message to share your score:', message);
+  }
+}
+
 function spawnBigApple() {
   bigApple = randomPosition();
   bigApple.value = 200;
@@ -120,7 +171,7 @@ function spawnBigApple() {
 function drawGame() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Draw apple with neon glow
+  // Draw apple with neon glow (increased size)
   ctx.shadowColor = '#ff4444';
   ctx.shadowBlur = 15;
   ctx.fillStyle = '#ff4444';
@@ -128,7 +179,7 @@ function drawGame() {
   ctx.arc(
     apple.x * tileSize + tileSize / 2,
     apple.y * tileSize + tileSize / 2,
-    tileSize / 2.5,
+    tileSize / 2.2, // Increased from 2.5 to 2.2 for bigger apple
     0, Math.PI * 2
   );
   ctx.fill();
@@ -140,12 +191,12 @@ function drawGame() {
   ctx.arc(
     apple.x * tileSize + tileSize / 2 - 3,
     apple.y * tileSize + tileSize / 2 - 3,
-    tileSize / 6,
+    tileSize / 5, // Increased from 6 to 5 for bigger highlight
     0, Math.PI * 2
   );
   ctx.fill();
 
-  // Draw big apple with orange glow
+  // Draw big apple with orange glow (increased size)
   if (bigApple) {
     ctx.shadowColor = '#ff8800';
     ctx.shadowBlur = 20;
@@ -154,7 +205,7 @@ function drawGame() {
     ctx.arc(
       bigApple.x * tileSize + tileSize / 2,
       bigApple.y * tileSize + tileSize / 2,
-      tileSize / 1.8,
+      tileSize / 1.6, // Increased from 1.8 to 1.6 for bigger big apple
       0, Math.PI * 2
     );
     ctx.fill();
@@ -166,61 +217,60 @@ function drawGame() {
     ctx.arc(
       bigApple.x * tileSize + tileSize / 2 - 4,
       bigApple.y * tileSize + tileSize / 2 - 4,
-      tileSize / 4,
+      tileSize / 3.5, // Increased from 4 to 3.5 for bigger highlight
       0, Math.PI * 2
     );
     ctx.fill();
   }
 
-  // Draw snake with neon glow
+  // Draw snake with neon glow (increased size)
   snake.forEach((segment, i) => {
     const alpha = 1 - (i / snake.length) * 0.7;
-    const headAlpha = i === 0 ? 1 : alpha;
     
-    // Main body with glow
+    // Main body with glow - increased padding for bigger snake
     ctx.shadowColor = '#00ff88';
     ctx.shadowBlur = 10;
     ctx.fillStyle = i === 0 ? '#00ff88' : `rgba(0, 255, 136, ${alpha})`;
     ctx.fillRect(
-      segment.x * tileSize + 1, 
-      segment.y * tileSize + 1, 
-      tileSize - 2, 
-      tileSize - 2
+      segment.x * tileSize + 0.5, // Reduced padding from 1 to 0.5
+      segment.y * tileSize + 0.5, 
+      tileSize - 1, // Reduced from 2 to 1
+      tileSize - 1
     );
 
-    // Inner highlight
+    // Inner highlight - increased size
     ctx.shadowBlur = 0;
     ctx.fillStyle = i === 0 ? '#44ffaa' : `rgba(68, 255, 170, ${alpha * 0.8})`;
     ctx.fillRect(
-      segment.x * tileSize + 3, 
-      segment.y * tileSize + 3, 
-      tileSize - 6, 
-      tileSize - 6
+      segment.x * tileSize + 2, // Reduced padding from 3 to 2
+      segment.y * tileSize + 2, 
+      tileSize - 4, // Reduced from 6 to 4
+      tileSize - 4
     );
 
     if (i === 0) {
-      // Eyes with glow
+      // Eyes with glow - increased size
       ctx.shadowColor = '#ffffff';
       ctx.shadowBlur = 5;
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.arc(segment.x * tileSize + tileSize * 0.3, segment.y * tileSize + tileSize * 0.3, 3, 0, 2 * Math.PI);
-      ctx.arc(segment.x * tileSize + tileSize * 0.7, segment.y * tileSize + tileSize * 0.3, 3, 0, 2 * Math.PI);
+      ctx.arc(segment.x * tileSize + tileSize * 0.3, segment.y * tileSize + tileSize * 0.3, 4, 0, 2 * Math.PI); // Increased from 3 to 4
+      ctx.arc(segment.x * tileSize + tileSize * 0.7, segment.y * tileSize + tileSize * 0.3, 4, 0, 2 * Math.PI); // Increased from 3 to 4
       ctx.fill();
 
-      // Eye pupils
+      // Eye pupils - increased size
       ctx.shadowBlur = 0;
       ctx.fillStyle = '#000000';
       ctx.beginPath();
-      ctx.arc(segment.x * tileSize + tileSize * 0.3, segment.y * tileSize + tileSize * 0.3, 1.5, 0, 2 * Math.PI);
-      ctx.arc(segment.x * tileSize + tileSize * 0.7, segment.y * tileSize + tileSize * 0.3, 1.5, 0, 2 * Math.PI);
+      ctx.arc(segment.x * tileSize + tileSize * 0.3, segment.y * tileSize + tileSize * 0.3, 2, 0, 2 * Math.PI); // Increased from 1.5 to 2
+      ctx.arc(segment.x * tileSize + tileSize * 0.7, segment.y * tileSize + tileSize * 0.3, 2, 0, 2 * Math.PI); // Increased from 1.5 to 2
       ctx.fill();
 
-      // Glowing tongue
+      // Glowing tongue - increased size
       ctx.shadowColor = '#ff4444';
       ctx.shadowBlur = 8;
       ctx.strokeStyle = '#ff4444';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 4; // Increased from 3 to 4
       ctx.beginPath();
       const tx = segment.x * tileSize + tileSize / 2 + direction.x * tileSize / 2;
       const ty = segment.y * tileSize + tileSize / 2 + direction.y * tileSize / 2;
@@ -291,7 +341,9 @@ document.addEventListener('touchmove', (e) => {
   e.preventDefault();
 }, { passive: false });
 
+// Event listeners
 restartBtn.addEventListener('click', resetGame);
+shareBtn.addEventListener('click', shareScore);
 
 // Start the game
 resetGame();

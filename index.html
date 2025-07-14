@@ -48,14 +48,14 @@
     }
 
     #gameTitle {
-      font-size: 2.5em;
+      font-size: 2.2em;
       font-weight: 900;
       color: #00ff88;
       text-shadow: 
         0 0 10px #00ff88,
         0 0 20px #00ff88,
         0 0 30px #00ff88;
-      margin: 20px 0 10px 0;
+      margin: 10px 0 5px 0;
       text-align: center;
       letter-spacing: 2px;
       animation: glow 2s ease-in-out infinite alternate;
@@ -67,13 +67,13 @@
     }
 
     #score {
-      font-size: 1.5em;
+      font-size: 1.3em;
       font-weight: 700;
       color: #ff6b6b;
       text-shadow: 0 0 10px #ff6b6b;
-      margin: 10px 0;
+      margin: 5px 0;
       background: rgba(255, 107, 107, 0.1);
-      padding: 10px 20px;
+      padding: 8px 16px;
       border-radius: 25px;
       border: 2px solid #ff6b6b;
       backdrop-filter: blur(10px);
@@ -88,7 +88,7 @@
 
     #gameContainer {
       position: relative;
-      margin: 20px 0;
+      margin: 10px 0;
     }
 
     canvas {
@@ -99,55 +99,79 @@
       border-radius: 15px;
       border: 3px solid #00ff88;
       max-width: 90vw;
-      max-height: 60vh;
+      max-height: 50vh;
       aspect-ratio: 3 / 4;
       touch-action: none;
     }
 
-    #restartBtn {
-      margin-top: 20px;
-      padding: 15px 30px;
-      font-size: 1.1em;
+    #controlsContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    #restartBtn, #shareBtn {
+      padding: 12px 24px;
+      font-size: 1em;
       font-family: 'Orbitron', monospace;
       font-weight: 700;
-      background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-      color: white;
       border: none;
       border-radius: 25px;
       cursor: pointer;
-      display: none;
       touch-action: manipulation;
-      box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
       transition: all 0.3s ease;
       text-transform: uppercase;
       letter-spacing: 1px;
+      display: none;
+    }
+
+    #restartBtn {
+      background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+      color: white;
+      box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+    }
+
+    #shareBtn {
+      background: linear-gradient(45deg, #4CAF50, #66BB6A);
+      color: white;
+      box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+    }
+
+    #restartBtn:hover, #shareBtn:hover {
+      transform: translateY(-2px);
     }
 
     #restartBtn:hover {
-      transform: translateY(-2px);
       box-shadow: 0 5px 25px rgba(255, 107, 107, 0.7);
     }
 
-    #restartBtn:active {
+    #shareBtn:hover {
+      box-shadow: 0 5px 25px rgba(76, 175, 80, 0.7);
+    }
+
+    #restartBtn:active, #shareBtn:active {
       transform: translateY(0);
     }
 
     #instructions {
       color: #88ddff;
-      font-size: 1em;
-      margin: 20px 0;
+      font-size: 0.9em;
+      margin: 10px 0;
       text-align: center;
       background: rgba(136, 221, 255, 0.1);
-      padding: 15px 25px;
-      border-radius: 20px;
+      padding: 10px 20px;
+      border-radius: 15px;
       border: 2px solid #88ddff;
       backdrop-filter: blur(10px);
-      max-width: 400px;
+      max-width: 90vw;
+      box-sizing: border-box;
     }
 
     #instructions .emoji {
-      font-size: 1.5em;
-      margin-right: 10px;
+      font-size: 1.2em;
+      margin-right: 8px;
     }
 
     .feature-highlight {
@@ -158,17 +182,28 @@
 
     @media (max-width: 600px) {
       #gameTitle {
-        font-size: 2em;
+        font-size: 1.8em;
+        margin: 8px 0 4px 0;
       }
       
       #score {
-        font-size: 1.2em;
+        font-size: 1.1em;
+        padding: 6px 12px;
+      }
+      
+      canvas {
+        max-height: 45vh;
       }
       
       #instructions {
+        font-size: 0.8em;
+        margin: 8px 5px;
+        padding: 8px 15px;
+      }
+      
+      #restartBtn, #shareBtn {
+        padding: 10px 20px;
         font-size: 0.9em;
-        margin: 15px 10px;
-        padding: 12px 20px;
       }
     }
 
@@ -178,17 +213,44 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.95);
       color: #ff6b6b;
-      padding: 30px;
+      padding: 25px;
       border-radius: 20px;
       text-align: center;
-      font-size: 2em;
+      font-size: 1.5em;
       font-weight: 700;
       display: none;
       z-index: 100;
       border: 3px solid #ff6b6b;
       box-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
+      min-width: 250px;
+    }
+
+    #gameOver .title {
+      font-size: 1.3em;
+      margin-bottom: 15px;
+    }
+
+    #gameOver .finalScore {
+      font-size: 1.1em;
+      color: #00ff88;
+      text-shadow: 0 0 10px #00ff88;
+      margin-bottom: 10px;
+    }
+
+    #gameOver .message {
+      font-size: 0.7em;
+      margin-bottom: 15px;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 600px) {
+      #gameOver {
+        padding: 20px;
+        font-size: 1.2em;
+        min-width: 200px;
+      }
     }
   </style>
 </head>
@@ -198,11 +260,15 @@
   <div id="gameContainer">
     <canvas id="game"></canvas>
     <div id="gameOver">
-      GAME OVER!<br>
-      <div style="font-size: 0.6em; margin-top: 10px;">Click Restart to play again</div>
+      <div class="title">GAME OVER!</div>
+      <div class="finalScore" id="finalScore">Final Score: 0</div>
+      <div class="message">You hit yourself!</div>
     </div>
   </div>
-  <button id="restartBtn">🔄 Restart Game</button>
+  <div id="controlsContainer">
+    <button id="restartBtn">🔄 Restart Game</button>
+    <button id="shareBtn">📤 Share Score</button>
+  </div>
   <div id="instructions">
     <span class="emoji">🎮</span>
     <span class="feature-highlight">Swipe</span> or use <span class="feature-highlight">arrow keys</span> to control<br>
