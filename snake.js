@@ -15,25 +15,25 @@ let tileSize = 20;
 let cols, rows;
 
 function resizeCanvas() {
-  // Farcaster miniapp optimized dimensions - more vertical, mobile-friendly
+  // Shorter canvas for better mobile experience
   const maxWidth = Math.min(window.innerWidth * 0.95, 400); // Max width 400px for miniapp
-  const aspectRatio = 9 / 16; // Vertical aspect ratio for mobile miniapps
+  const aspectRatio = 3 / 4; // Less vertical, more compact
   
   let width = maxWidth;
   let height = width / aspectRatio;
   
-  // Ensure minimum height for gameplay
-  const minHeight = 500;
-  if (height < minHeight) {
-    height = minHeight;
+  // Limit maximum height for better screen fit
+  const maxHeight = Math.min(window.innerHeight * 0.45, 350);
+  if (height > maxHeight) {
+    height = maxHeight;
     width = height * aspectRatio;
   }
 
   canvas.width = width;
   canvas.height = height;
 
-  // Optimized tile size for Farcaster miniapp
-  tileSize = Math.floor(width / 20); // Smaller grid for miniapp format
+  // Optimized tile size
+  tileSize = Math.floor(width / 18); // Adjusted for new dimensions
   cols = Math.floor(width / tileSize);
   rows = Math.floor(height / tileSize);
 }
@@ -118,19 +118,30 @@ function clearHighScores() {
 
 
 function resetGame() {
-  snake = [{ x: 5, y: 5 }];
+  // Clear any existing intervals first
+  clearInterval(gameInterval);
+  clearTimeout(bigAppleTimer);
+  
+  snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
   direction = { x: 1, y: 0 };
   apple = randomPosition();
   bigApple = null;
   applesEaten = 0;
   score = 0;
-  gameStarted = true;
+  gameStarted = false; // Don't start immediately
   updateScore();
-  clearInterval(gameInterval);
-  gameInterval = setInterval(gameLoop, 180);
   restartBtn.style.display = "none";
   shareBtn.style.display = "none";
   gameOverEl.style.display = "none";
+  
+  // Draw initial state
+  drawGame();
+  
+  // Start game after a short delay to prevent lag
+  setTimeout(() => {
+    gameStarted = true;
+    gameInterval = setInterval(gameLoop, 150); // Slightly faster for better responsiveness
+  }, 100);
 }
 
 function randomPosition() {
@@ -205,9 +216,11 @@ function showGameOver() {
     saveHighScore(score);
   }
   
-  // Show buttons immediately - no delay
-  restartBtn.style.display = "block";
-  shareBtn.style.display = "block";
+  // Show buttons with slight delay to ensure proper rendering
+  setTimeout(() => {
+    restartBtn.style.display = "inline-block";
+    shareBtn.style.display = "inline-block";
+  }, 100);
 }
 
 function shareScore() {
