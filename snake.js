@@ -3,6 +3,10 @@ const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
 const restartBtn = document.getElementById('restartBtn');
 const shareBtn = document.getElementById('shareBtn');
+const highScoresBtn = document.getElementById('highScoresBtn');
+const highScoresContainer = document.getElementById('highScoresContainer');
+const highScoresList = document.getElementById('highScoresList');
+const clearHighScoresBtn = document.getElementById('clearHighScoresBtn');
 const gameOverEl = document.getElementById('gameOver');
 const finalScoreEl = document.getElementById('finalScore');
 
@@ -36,6 +40,70 @@ window.addEventListener("resize", () => location.reload());
 
 let snake, direction, apple, bigApple, score, gameInterval, bigAppleTimer;
 let gameStarted = false;
+let highScoresVisible = false;
+
+// High Scores Management
+function getHighScores() {
+  const scores = localStorage.getItem('snakeHighScores');
+  return scores ? JSON.parse(scores) : [];
+}
+
+function saveHighScore(score) {
+  const highScores = getHighScores();
+  const now = new Date();
+  const scoreEntry = {
+    score: score,
+    date: now.toLocaleDateString(),
+    time: now.toLocaleTimeString()
+  };
+  
+  highScores.push(scoreEntry);
+  highScores.sort((a, b) => b.score - a.score);
+  
+  // Keep only top 10 scores
+  if (highScores.length > 10) {
+    highScores.splice(10);
+  }
+  
+  localStorage.setItem('snakeHighScores', JSON.stringify(highScores));
+  return highScores;
+}
+
+function displayHighScores() {
+  const highScores = getHighScores();
+  
+  if (highScores.length === 0) {
+    highScoresList.innerHTML = '<div class="high-score-item">No high scores yet!</div>';
+    return;
+  }
+  
+  let html = '';
+  highScores.forEach((entry, index) => {
+    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+    html += `<div class="high-score-item">${medal} ${entry.score} points - ${entry.date}</div>`;
+  });
+  
+  highScoresList.innerHTML = html;
+}
+
+function toggleHighScores() {
+  highScoresVisible = !highScoresVisible;
+  if (highScoresVisible) {
+    displayHighScores();
+    highScoresContainer.style.display = 'block';
+    highScoresBtn.textContent = '🔽 Hide Scores';
+  } else {
+    highScoresContainer.style.display = 'none';
+    highScoresBtn.textContent = '🏆 High Scores';
+  }
+}
+
+function clearHighScores() {
+  if (confirm('Are you sure you want to clear all high scores?')) {
+    localStorage.removeItem('snakeHighScores');
+    displayHighScores();
+  }
+}
 
 function resetGame() {
   snake = [{ x: 5, y: 5 }];
@@ -108,10 +176,14 @@ function showGameOver() {
   finalScoreEl.textContent = `Final Score: ${score}`;
   gameOverEl.style.display = "block";
   
-  setTimeout(() => {
-    restartBtn.style.display = "block";
-    shareBtn.style.display = "block";
-  }, 1000);
+  // Save high score
+  if (score > 0) {
+    saveHighScore(score);
+  }
+  
+  // Show buttons immediately - no delay
+  restartBtn.style.display = "block";
+  shareBtn.style.display = "block";
 }
 
 function shareScore() {
@@ -221,6 +293,50 @@ function drawGame() {
       0, Math.PI * 2
     );
     ctx.fill();
+
+    // Draw countdown circle below big apple (scales with value)
+    const countdownScale = Math.max(0.1, bigApple.value / 200); // Scale from 0.1 to 1.0
+    const countdownRadius = (tileSize / 4) * countdownScale;
+    const countdownY = bigApple.y * tileSize + tileSize + countdownRadius + 5;
+    
+    // Only draw if the countdown circle would be within canvas bounds
+    if (countdownY + countdownRadius < canvas.height) {
+      ctx.shadowColor = '#ff8800';
+      ctx.shadowBlur = 10;
+      ctx.fillStyle = '#ff8800';
+      ctx.beginPath();
+      ctx.arc(
+        bigApple.x * tileSize + tileSize / 2,
+        countdownY,
+        countdownRadius,
+        0, Math.PI * 2
+      );
+      ctx.fill();
+
+      // Inner highlight for countdown circle
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#ffcc44';
+      ctx.beginPath();
+      ctx.arc(
+        bigApple.x * tileSize + tileSize / 2 - 1,
+        countdownY - 1,
+        countdownRadius * 0.6,
+        0, Math.PI * 2
+      );
+      ctx.fill();
+
+      // Value text in countdown circle
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#1a1a3a';
+      ctx.font = `bold ${Math.max(8, countdownRadius)}px Orbitron`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(
+        bigApple.value.toString(),
+        bigApple.x * tileSize + tileSize / 2,
+        countdownY
+      );
+    }
   }
 
   // Draw snake with neon glow (increased size)
@@ -344,6 +460,8 @@ document.addEventListener('touchmove', (e) => {
 // Event listeners
 restartBtn.addEventListener('click', resetGame);
 shareBtn.addEventListener('click', shareScore);
+highScoresBtn.addEventListener('click', toggleHighScores);
+clearHighScoresBtn.addEventListener('click', clearHighScores);
 
 // Start the game
 resetGame();
