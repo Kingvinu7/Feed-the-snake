@@ -7,6 +7,7 @@ const highScoresBtn = document.getElementById('highScoresBtn');
 const highScoresContainer = document.getElementById('highScoresContainer');
 const highScoresList = document.getElementById('highScoresList');
 const clearHighScoresBtn = document.getElementById('clearHighScoresBtn');
+const closeHighScoresBtn = document.getElementById('closeHighScoresBtn');
 const gameOverEl = document.getElementById('gameOver');
 const finalScoreEl = document.getElementById('finalScore');
 
@@ -91,10 +92,17 @@ function toggleHighScores() {
   if (highScoresVisible) {
     displayHighScores();
     highScoresContainer.style.display = 'block';
-    highScoresBtn.textContent = '🔽 Hide Scores';
+    // Add fade-in and scale effect
+    setTimeout(() => {
+      highScoresContainer.style.opacity = '1';
+      highScoresContainer.classList.add('show');
+    }, 10);
   } else {
-    highScoresContainer.style.display = 'none';
-    highScoresBtn.textContent = '🏆 High Scores';
+    highScoresContainer.style.opacity = '0';
+    highScoresContainer.classList.remove('show');
+    setTimeout(() => {
+      highScoresContainer.style.display = 'none';
+    }, 300);
   }
 }
 
@@ -401,6 +409,12 @@ function drawGame() {
 
 // Keyboard controls
 document.addEventListener('keydown', e => {
+  // Close high scores modal with Escape key
+  if (e.key === 'Escape' && highScoresVisible) {
+    toggleHighScores();
+    return;
+  }
+  
   if (!gameStarted) return;
   if (e.key === 'ArrowUp' && direction.y !== 1) direction = { x: 0, y: -1 };
   if (e.key === 'ArrowDown' && direction.y !== -1) direction = { x: 0, y: 1 };
@@ -408,27 +422,69 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight' && direction.x !== -1) direction = { x: 1, y: 0 };
 });
 
-// Touch controls for mobile
+// Touch controls for mobile - Enhanced for feather touch
 let touchStartX = 0;
 let touchStartY = 0;
+let touchMoved = false;
+let lastSwipeTime = 0;
 
 canvas.addEventListener('touchstart', (e) => {
   e.preventDefault();
   touchStartX = e.touches[0].clientX;
   touchStartY = e.touches[0].clientY;
+  touchMoved = false;
+});
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (!gameStarted) return;
+  
+  // Feather touch - respond to movement during swipe, not just on end
+  const currentTime = Date.now();
+  if (currentTime - lastSwipeTime < 100) return; // Prevent too frequent direction changes
+  
+  const touchCurrentX = e.touches[0].clientX;
+  const touchCurrentY = e.touches[0].clientY;
+  
+  const deltaX = touchCurrentX - touchStartX;
+  const deltaY = touchCurrentY - touchStartY;
+  
+  const minSwipeDistance = 15; // Reduced for more sensitive touch
+  
+  if (Math.abs(deltaX) > minSwipeDistance || Math.abs(deltaY) > minSwipeDistance) {
+    touchMoved = true;
+    lastSwipeTime = currentTime;
+    
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // Horizontal swipe
+      if (deltaX > 0 && direction.x !== -1) {
+        direction = { x: 1, y: 0 }; // Right
+      } else if (deltaX < 0 && direction.x !== 1) {
+        direction = { x: -1, y: 0 }; // Left
+      }
+    } else {
+      // Vertical swipe
+      if (deltaY > 0 && direction.y !== -1) {
+        direction = { x: 0, y: 1 }; // Down
+      } else if (deltaY < 0 && direction.y !== 1) {
+        direction = { x: 0, y: -1 }; // Up
+      }
+    }
+  }
 });
 
 canvas.addEventListener('touchend', (e) => {
   e.preventDefault();
-  if (!gameStarted) return;
+  if (!gameStarted || touchMoved) return;
   
+  // Fallback for very quick taps
   const touchEndX = e.changedTouches[0].clientX;
   const touchEndY = e.changedTouches[0].clientY;
   
   const deltaX = touchEndX - touchStartX;
   const deltaY = touchEndY - touchStartY;
   
-  const minSwipeDistance = 30;
+  const minSwipeDistance = 10; // Even more sensitive for quick taps
   
   if (Math.abs(deltaX) > Math.abs(deltaY)) {
     // Horizontal swipe
@@ -461,6 +517,14 @@ restartBtn.addEventListener('click', resetGame);
 shareBtn.addEventListener('click', shareScore);
 highScoresBtn.addEventListener('click', toggleHighScores);
 clearHighScoresBtn.addEventListener('click', clearHighScores);
+closeHighScoresBtn.addEventListener('click', toggleHighScores);
+
+// Close modal when clicking outside of it
+highScoresContainer.addEventListener('click', (e) => {
+  if (e.target === highScoresContainer) {
+    toggleHighScores();
+  }
+});
 
 // Start the game
 resetGame();
