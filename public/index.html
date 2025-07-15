@@ -7,25 +7,59 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
     
-    html, body {
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
       background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 50%, #2d2d5f 100%);
       font-family: 'Orbitron', monospace;
+      overflow-x: hidden;
+      position: relative;
+      touch-action: manipulation;
+    }
+
+    #app {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
       min-height: 100vh;
-      overflow: hidden;
+      padding: 10px;
       position: relative;
-      touch-action: none;
+      z-index: 1;
+    }
+
+    /* Loading/Splash Screen */
+    #loadingScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 50%, #2d2d5f 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      color: #00ff88;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    #loadingScreen.hidden {
+      display: none;
     }
 
     /* Animated background stars */
     body::before {
       content: '';
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       width: 100%;
@@ -40,6 +74,7 @@
       background-size: 200px 100px;
       animation: sparkle 3s linear infinite;
       opacity: 0.3;
+      z-index: 0;
     }
 
     @keyframes sparkle {
@@ -48,14 +83,14 @@
     }
 
     #gameTitle {
-      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
       font-weight: 900;
       color: #00ff88;
       text-shadow: 
         0 0 10px #00ff88,
         0 0 20px #00ff88,
         0 0 30px #00ff88;
-      margin: 15px 0;
+      margin: 10px 0;
       text-align: center;
       letter-spacing: 2px;
       animation: glow 2s ease-in-out infinite alternate;
@@ -77,6 +112,8 @@
         inset 0 0 20px rgba(0, 255, 136, 0.1);
       backdrop-filter: blur(10px);
       margin: 10px;
+      max-width: 90vw;
+      max-height: 80vh;
     }
 
     #game {
@@ -88,6 +125,8 @@
         inset 0 0 15px rgba(0, 255, 136, 0.1);
       display: block;
       margin: 0 auto;
+      max-width: 100%;
+      max-height: 100%;
     }
 
     #scoreContainer {
@@ -95,21 +134,22 @@
       justify-content: space-between;
       align-items: center;
       margin: 10px 0;
-      padding: 10px 20px;
+      padding: 8px 15px;
       background: rgba(0, 255, 136, 0.1);
       border-radius: 10px;
       border: 1px solid rgba(0, 255, 136, 0.3);
+      flex-wrap: wrap;
     }
 
     #score {
-      font-size: clamp(1.2rem, 3vw, 1.5rem);
+      font-size: clamp(1rem, 3vw, 1.3rem);
       font-weight: 700;
       color: #00ff88;
       text-shadow: 0 0 10px #00ff88;
     }
 
     #bestScore {
-      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
       font-weight: 700;
       color: #ffaa00;
       text-shadow: 0 0 10px #ffaa00;
@@ -122,7 +162,7 @@
       transform: translate(-50%, -50%);
       background: rgba(0, 0, 0, 0.95);
       color: #ff4444;
-      padding: 30px;
+      padding: 20px;
       border-radius: 15px;
       text-align: center;
       border: 2px solid #ff4444;
@@ -133,6 +173,7 @@
       display: none;
       z-index: 1000;
       animation: gameOverPulse 2s ease-in-out infinite;
+      max-width: 80vw;
     }
 
     @keyframes gameOverPulse {
@@ -141,41 +182,44 @@
     }
 
     #gameOver .title {
-      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-size: clamp(1.5rem, 4vw, 2rem);
       font-weight: 900;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       text-shadow: 0 0 15px #ff4444;
     }
 
     #gameOver .finalScore {
-      font-size: clamp(1.2rem, 3vw, 1.5rem);
+      font-size: clamp(1rem, 3vw, 1.3rem);
       font-weight: 700;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       color: #00ff88;
       text-shadow: 0 0 10px #00ff88;
     }
 
     #gameOver .message {
-      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
       font-weight: 400;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       color: #ffffff;
     }
 
     #controlsContainer {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
       justify-content: center;
-      margin: 20px 0;
+      margin: 15px 0;
+      padding: 0 10px;
+      width: 100%;
+      max-width: 500px;
     }
 
     button {
       background: linear-gradient(45deg, #00ff88, #00cc66);
       color: #000;
       border: none;
-      padding: 12px 20px;
-      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      padding: 10px 16px;
+      font-size: clamp(0.8rem, 2vw, 1rem);
       font-weight: 700;
       border-radius: 8px;
       cursor: pointer;
@@ -184,6 +228,12 @@
       letter-spacing: 1px;
       box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
       text-transform: uppercase;
+      flex: 1;
+      min-width: 120px;
+      max-width: 200px;
+      white-space: nowrap;
+      z-index: 100;
+      position: relative;
     }
 
     button:hover {
@@ -200,15 +250,15 @@
     #instructions {
       text-align: center;
       color: #ffffff;
-      font-size: clamp(0.8rem, 1.8vw, 1rem);
-      margin: 15px 0;
-      padding: 15px;
+      font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+      margin: 10px 0;
+      padding: 10px;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 10px;
       border: 1px solid rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(5px);
       max-width: 400px;
-      margin: 15px auto;
+      margin: 10px auto;
     }
 
     .emoji {
@@ -234,19 +284,20 @@
       align-items: center;
       z-index: 2000;
       backdrop-filter: blur(10px);
+      padding: 20px;
     }
 
     #highScoresModal {
       background: linear-gradient(135deg, #1a1a3a 0%, #2d2d5f 100%);
       color: #ffffff;
-      padding: 30px;
+      padding: 20px;
       border-radius: 15px;
       border: 2px solid #00ff88;
       box-shadow: 
         0 0 30px rgba(0, 255, 136, 0.5),
         inset 0 0 30px rgba(0, 255, 136, 0.1);
-      max-width: 90%;
-      max-height: 90%;
+      max-width: 90vw;
+      max-height: 80vh;
       overflow-y: auto;
       text-align: center;
       animation: modalSlideIn 0.3s ease-out;
@@ -258,17 +309,17 @@
     }
 
     #highScoresTitle {
-      font-size: clamp(1.5rem, 4vw, 2rem);
+      font-size: clamp(1.3rem, 4vw, 1.8rem);
       font-weight: 900;
       color: #00ff88;
       text-shadow: 0 0 15px #00ff88;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
 
     #highScoresList {
-      min-height: 200px;
-      margin: 20px 0;
-      padding: 15px;
+      min-height: 150px;
+      margin: 15px 0;
+      padding: 10px;
       background: rgba(0, 0, 0, 0.3);
       border-radius: 10px;
       border: 1px solid rgba(0, 255, 136, 0.3);
@@ -278,12 +329,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 15px;
+      padding: 8px 12px;
       margin: 5px 0;
       background: rgba(0, 255, 136, 0.1);
       border-radius: 8px;
       border-left: 4px solid #00ff88;
-      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      font-size: clamp(0.8rem, 2vw, 1rem);
     }
 
     .high-score-item:nth-child(1) { border-left-color: #ffd700; }
@@ -293,7 +344,7 @@
     .high-score-rank {
       font-weight: 700;
       color: #00ff88;
-      min-width: 40px;
+      min-width: 30px;
     }
 
     .high-score-value {
@@ -304,78 +355,76 @@
     .high-score-date {
       font-size: 0.8em;
       color: #aaaaaa;
-      margin-left: 10px;
+      margin-left: 8px;
     }
 
     #modalButtons {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       justify-content: center;
       flex-wrap: wrap;
-      margin-top: 20px;
+      margin-top: 15px;
     }
 
-    /* Enhanced mobile responsiveness */
-    @media (max-width: 480px) {
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      #app {
+        padding: 5px;
+      }
+      
       #gameContainer {
         margin: 5px;
         padding: 10px;
       }
       
       #game {
-        width: 90vw;
-        height: 90vw;
-        max-width: 400px;
-        max-height: 400px;
+        width: min(90vw, 350px);
+        height: min(90vw, 350px);
       }
       
       #controlsContainer {
         flex-direction: column;
         align-items: center;
+        gap: 8px;
       }
       
       button {
-        width: 80%;
+        width: 100%;
         max-width: 250px;
+        min-width: unset;
       }
       
       #instructions {
-        font-size: 0.9rem;
-        padding: 10px;
+        font-size: 0.8rem;
+        padding: 8px;
+      }
+      
+      #highScoresModal {
+        padding: 15px;
+        max-width: 95vw;
       }
     }
 
-    /* Game UI improvements */
-    .game-ui {
-      position: relative;
-      z-index: 10;
-    }
-
-    .pause-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      color: #ffffff;
-      font-size: 2rem;
-      font-weight: 700;
-      z-index: 100;
-      border-radius: 10px;
-    }
-
-    /* Enhanced visual effects */
-    .power-pellet {
-      animation: powerPelletPulse 0.5s ease-in-out infinite alternate;
-    }
-
-    @keyframes powerPelletPulse {
-      from { opacity: 0.7; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1.1); }
+    /* Farcaster Frame optimizations */
+    @media (max-width: 480px) {
+      #gameTitle {
+        font-size: 1.5rem;
+        margin: 5px 0;
+      }
+      
+      #game {
+        width: min(85vw, 300px);
+        height: min(85vw, 300px);
+      }
+      
+      #scoreContainer {
+        padding: 6px 10px;
+      }
+      
+      button {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+      }
     }
 
     /* Loading animation */
@@ -419,43 +468,57 @@
   </style>
 </head>
 <body>
-  <div id="gameTitle">🐍 FEED THE SNAKE</div>
-  
-  <div id="gameContainer">
-    <div id="scoreContainer">
-      <div id="score">Score: 0</div>
-      <div id="bestScore">Best: 0</div>
+  <!-- Loading Screen -->
+  <div id="loadingScreen">
+    <div>🐍 Loading Feed The Snake...</div>
+    <div style="font-size: 1rem; margin-top: 10px; opacity: 0.7;">Preparing your game...</div>
+  </div>
+
+  <div id="app">
+    <div id="gameTitle">🐍 FEED THE SNAKE</div>
+    
+    <div id="gameContainer">
+      <div id="scoreContainer">
+        <div id="score">Score: 0</div>
+        <div id="bestScore">Best: 0</div>
+      </div>
+      
+      <canvas id="game" width="350" height="350"></canvas>
+      
+      <div id="gameOver">
+        <div class="title">GAME OVER!</div>
+        <div class="finalScore" id="finalScore">Final Score: 0</div>
+        <div class="message">You hit the wall!</div>
+      </div>
     </div>
-    
-    <canvas id="game" width="400" height="400"></canvas>
-    
-    <div id="gameOver">
-      <div class="title">GAME OVER!</div>
-      <div class="finalScore" id="finalScore">Final Score: 0</div>
-      <div class="message">You hit yourself!</div>
+
+    <div id="controlsContainer">
+      <button id="restartBtn">🔄 Restart</button>
+      <button id="shareBtn">📤 Share</button>
+      <button id="highScoresBtn">🏆 Scores</button>
+    </div>
+
+    <div id="instructions">
+      <span class="emoji">🎮</span>
+      <span class="feature-highlight">Swipe</span> or use <span class="feature-highlight">arrow keys</span> to control<br>
+      <span class="emoji">🔥</span>
+      Collect <span class="feature-highlight">golden apples</span> for bonus points!
     </div>
   </div>
-  <div id="controlsContainer">
-    <button id="restartBtn">🔄 Restart Game</button>
-    <button id="shareBtn">📤 Share Score</button>
-    <button id="highScoresBtn">🏆 High Scores</button>
-  </div>
+
   <div id="highScoresContainer">
     <div id="highScoresModal">
-      <h3 id="highScoresTitle">🏆 High Scores Leaderboard</h3>
+      <h3 id="highScoresTitle">🏆 High Scores</h3>
       <div id="highScoresList"></div>
       <div id="modalButtons">
-        <button id="clearHighScoresBtn">🗑️ Clear Scores</button>
+        <button id="clearHighScoresBtn">🗑️ Clear</button>
         <button id="closeHighScoresBtn">❌ Close</button>
       </div>
     </div>
   </div>
-  <div id="instructions">
-    <span class="emoji">🎮</span>
-    <span class="feature-highlight">Swipe</span> or use <span class="feature-highlight">arrow keys</span> to control<br>
-    <span class="emoji">🔥</span>
-    Snake now <span class="feature-highlight">wraps around</span> the borders!
-  </div>
+
+  <!-- Farcaster Frame SDK -->
+  <script src="https://sdk.farcaster.xyz/v0.13.1/farcaster.js"></script>
   <script src="snake.js"></script>
 </body>
 </html>
