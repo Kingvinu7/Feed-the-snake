@@ -5,5 +5,21 @@
       "destination": "https://api.farcaster.xyz/miniapps/hosted-manifest/01980cee-578d-f711-14c8-ae236313c63a",
       "statusCode": 307
     }
+  ],
+  "functions": {
+    "index.html": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    }
   ]
 }
