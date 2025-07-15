@@ -1,39 +1,41 @@
 // Farcaster SDK integration
-let sdk = null;
+let farcasterSDK = null;
 let isInFrame = false;
 
 // Initialize Farcaster SDK
 async function initializeFarcaster() {
   try {
-    // Check if SDK is available
-    if (typeof window !== 'undefined' && window.farcaster) {
-      // Import SDK dynamically or use global
-      sdk = window.farcaster;
+    if (typeof window.farcaster !== 'undefined') {
+      farcasterSDK = window.farcaster;
       isInFrame = true;
-      
-      // Call ready when the app is fully loaded
-      await sdk.actions.ready();
-      console.log('Farcaster SDK initialized successfully');
-      
-      // Get frame context if available
-      if (sdk.context) {
-        const context = await sdk.context();
-        console.log('Frame context:', context);
+
+      // Wait for SDK to be ready
+      if (farcasterSDK.actions && typeof farcasterSDK.actions.ready === 'function') {
+        await farcasterSDK.actions.ready();
+        console.log('Farcaster SDK is ready!');
+      } else {
+        console.warn('farcaster.actions.ready not available.');
+      }
+
+      // Log context
+      if (farcasterSDK.context) {
+        farcasterSDK.context.then(context => {
+          console.log('Farcaster frame context:', context);
+        });
       }
     } else {
-      console.log('Running outside of Farcaster frame');
+      console.log('Not running inside a Farcaster frame');
     }
-  } catch (error) {
-    console.error('Failed to initialize Farcaster SDK:', error);
+  } catch (err) {
+    console.error('Error initializing Farcaster SDK:', err);
   }
 }
 
-// Hide loading screen
-function hideLoadingScreen() {
-  const loadingScreen = document.getElementById('loadingScreen');
-  if (loadingScreen) {
-    loadingScreen.classList.add('hidden');
-  }
+// Call it on DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeFarcaster);
+} else {
+  initializeFarcaster();
 }
 
 // Game variables
