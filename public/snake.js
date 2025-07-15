@@ -17,31 +17,55 @@ const tileCount = canvas.width / gridSize;
 
 let snake = [{ x: 10, y: 10 }];
 let food = { x: 15, y: 15 };
+let bigApple = null;
+let bigAppleCountdown = 0;
+let bigAppleMaxScore = 200;
 let dx = 0;
 let dy = 0;
 let score = 0;
+let applesEaten = 0;
 let bestScore = localStorage.getItem('bestScore') || 0;
 let gameRunning = false;
 let gameStarted = false;
 let touchStartX = 0;
 let touchStartY = 0;
 let lastMoveTime = 0;
-let gameSpeed = 150;
+let gameSpeed = 250; // Slower speed
 let highScores = JSON.parse(localStorage.getItem('highScores')) || [];
+
+// Game boundaries (with walls on left and right)
+const WALL_LEFT = 1;
+const WALL_RIGHT = tileCount - 2;
+const WALL_TOP = 0;
+const WALL_BOTTOM = tileCount - 1;
 
 // Update best score display
 bestScoreEl.textContent = `Best: ${bestScore}`;
 
-// Enhanced food generation
+// Enhanced food generation (inside walls)
 function generateFood() {
   let newFood;
   do {
     newFood = {
-      x: Math.floor(Math.random() * tileCount),
-      y: Math.floor(Math.random() * tileCount)
+      x: Math.floor(Math.random() * (WALL_RIGHT - WALL_LEFT + 1)) + WALL_LEFT,
+      y: Math.floor(Math.random() * (WALL_BOTTOM - WALL_TOP + 1)) + WALL_TOP
     };
-  } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+  } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y) ||
+           (bigApple && bigApple.x === newFood.x && bigApple.y === newFood.y));
   return newFood;
+}
+
+// Generate big apple
+function generateBigApple() {
+  let newBigApple;
+  do {
+    newBigApple = {
+      x: Math.floor(Math.random() * (WALL_RIGHT - WALL_LEFT + 1)) + WALL_LEFT,
+      y: Math.floor(Math.random() * (WALL_BOTTOM - WALL_TOP + 1)) + WALL_TOP
+    };
+  } while (snake.some(segment => segment.x === newBigApple.x && segment.y === newBigApple.y) ||
+           (food.x === newBigApple.x && food.y === newBigApple.y));
+  return newBigApple;
 }
 
 // Enhanced drawing with better visuals
@@ -53,18 +77,36 @@ function drawGame() {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Draw grid lines
+  // Draw walls
+  ctx.fillStyle = '#444';
+  ctx.shadowColor = '#666';
+  ctx.shadowBlur = 5;
+  
+  // Left wall
+  for (let y = 0; y < tileCount; y++) {
+    ctx.fillRect(0, y * gridSize, gridSize, gridSize);
+  }
+  
+  // Right wall
+  for (let y = 0; y < tileCount; y++) {
+    ctx.fillRect((tileCount - 1) * gridSize, y * gridSize, gridSize, gridSize);
+  }
+  
+  ctx.shadowBlur = 0;
+
+  // Draw grid lines (only in playable area)
   ctx.strokeStyle = '#333';
   ctx.lineWidth = 1;
-  for (let i = 0; i <= tileCount; i++) {
+  for (let i = WALL_LEFT; i <= WALL_RIGHT + 1; i++) {
     ctx.beginPath();
     ctx.moveTo(i * gridSize, 0);
     ctx.lineTo(i * gridSize, canvas.height);
     ctx.stroke();
-    
+  }
+  for (let i = WALL_TOP; i <= WALL_BOTTOM + 1; i++) {
     ctx.beginPath();
-    ctx.moveTo(0, i * gridSize);
-    ctx.lineTo(canvas.width, i * gridSize);
+    ctx.moveTo(WALL_LEFT * gridSize, i * gridSize);
+    ctx.lineTo((WALL_RIGHT + 1) * gridSize, i * gridSize);
     ctx.stroke();
   }
 
@@ -76,7 +118,7 @@ function drawGame() {
     
     // Glow effect
     ctx.shadowColor = '#00ff88';
-    ctx.shadowBlur = isHead ? 20 : 10;
+    ctx.shadowBlur = isHead ? 15 : 8;
     
     // Snake body gradient
     const snakeGradient = ctx.createRadialGradient(
@@ -104,12 +146,12 @@ function drawGame() {
     }
   });
 
-  // Draw food with pulsing glow effect
+  // Draw regular food
   const foodX = food.x * gridSize;
   const foodY = food.y * gridSize;
   
   ctx.shadowColor = '#ff4444';
-  ctx.shadowBlur = 15;
+  ctx.shadowBlur = 10;
   
   const foodGradient = ctx.createRadialGradient(
     foodX + gridSize/2, foodY + gridSize/2, 0,
@@ -120,12 +162,60 @@ function drawGame() {
   
   ctx.fillStyle = foodGradient;
   ctx.fillRect(foodX + 2, foodY + 2, gridSize - 4, gridSize - 4);
+
+  // Draw big apple with countdown
+  if (bigApple) {
+    const bigAppleX = bigApple.x * gridSize;
+    const bigAppleY = bigApple.y * gridSize;
+    
+    // Pulsing effect
+    const pulseScale = 1 + Math.sin(Date.now() / 200) * 0.1;
+    const size = gridSize * pulseScale;
+    const offset = (gridSize - size) / 2;
+    
+    ctx.shadowColor = '#ffd700';
+    ctx.shadowBlur = 20;
+    
+    const bigAppleGradient = ctx.createRadialGradient(
+      bigAppleX + gridSize/2, bigAppleY + gridSize/2, 0,
+      bigAppleX + gridSize/2, bigAppleY + gridSize/2, size/2
+    );
+    bigAppleGradient.addColorStop(0, '#ffd700');
+    bigAppleGradient.addColorStop(0.7, '#ffaa00');
+    bigAppleGradient.addColorStop(1, '#ff8800');
+    
+    ctx.fillStyle = bigAppleGradient;
+    ctx.fillRect(bigAppleX + offset, bigAppleY + offset, size, size);
+    
+    // Draw countdown and score
+    const currentScore = Math.max(10, bigAppleMaxScore - Math.floor((Date.now() - bigApple.spawnTime) / 100));
+    
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 12px Orbitron';
+    ctx.textAlign = 'center';
+    ctx.fillText(currentScore.toString(), bigAppleX + gridSize/2, bigAppleY + gridSize/2 + 4);
+    
+    // Countdown bar
+    const timeLeft = Math.max(0, bigAppleCountdown - (Date.now() - bigApple.spawnTime));
+    const barWidth = gridSize - 4;
+    const barHeight = 3;
+    const barX = bigAppleX + 2;
+    const barY = bigAppleY - 8;
+    
+    ctx.fillStyle = '#333';
+    ctx.fillRect(barX, barY, barWidth, barHeight);
+    
+    const progress = timeLeft / bigAppleCountdown;
+    ctx.fillStyle = progress > 0.5 ? '#00ff00' : progress > 0.25 ? '#ffff00' : '#ff0000';
+    ctx.fillRect(barX, barY, barWidth * progress, barHeight);
+  }
   
   // Reset shadow
   ctx.shadowBlur = 0;
 }
 
-// Enhanced game logic with wrap-around
+// Enhanced game logic
 function updateGame() {
   if (!gameRunning) return;
 
@@ -135,11 +225,11 @@ function updateGame() {
 
   const head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
-  // Wrap around borders instead of collision
-  if (head.x < 0) head.x = tileCount - 1;
-  if (head.x >= tileCount) head.x = 0;
-  if (head.y < 0) head.y = tileCount - 1;
-  if (head.y >= tileCount) head.y = 0;
+  // Check wall collisions
+  if (head.x <= 0 || head.x >= tileCount - 1 || head.y < 0 || head.y >= tileCount) {
+    gameOver();
+    return;
+  }
 
   // Check collision with body
   if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
@@ -149,35 +239,86 @@ function updateGame() {
 
   snake.unshift(head);
 
-  // Check if food is eaten
+  // Check if regular food is eaten
   if (head.x === food.x && head.y === food.y) {
-    score += 10;
+    score += 5;
+    applesEaten++;
     scoreEl.textContent = `Score: ${score}`;
     food = generateFood();
     
-    // Increase speed slightly
-    gameSpeed = Math.max(80, gameSpeed - 1);
+    // Check if big apple should spawn
+    if (applesEaten % 5 === 0 && !bigApple) {
+      bigApple = generateBigApple();
+      bigApple.spawnTime = now;
+      bigAppleCountdown = 10000; // 10 seconds
+    }
     
-    // Add particle effect (visual feedback)
-    createParticleEffect(head.x * gridSize, head.y * gridSize);
-  } else {
+    // Visual feedback
+    createParticleEffect(head.x * gridSize, head.y * gridSize, '#ff4444');
+  }
+  // Check if big apple is eaten
+  else if (bigApple && head.x === bigApple.x && head.y === bigApple.y) {
+    const timeElapsed = now - bigApple.spawnTime;
+    const bigAppleScore = Math.max(10, bigAppleMaxScore - Math.floor(timeElapsed / 100));
+    score += bigAppleScore;
+    scoreEl.textContent = `Score: ${score}`;
+    
+    // Visual feedback
+    createParticleEffect(head.x * gridSize, head.y * gridSize, '#ffd700');
+    
+    bigApple = null;
+  }
+  // Check if big apple expired
+  else if (bigApple && now - bigApple.spawnTime > bigAppleCountdown) {
+    bigApple = null;
+  }
+  else {
     snake.pop();
   }
 
   drawGame();
 }
 
-// Particle effect for food consumption
-function createParticleEffect(x, y) {
-  // Visual feedback could be added here
-  // For now, just a simple flash effect
-  setTimeout(() => {
-    ctx.shadowColor = '#ffff00';
-    ctx.shadowBlur = 30;
-    ctx.fillStyle = '#ffff00';
-    ctx.fillRect(x, y, gridSize, gridSize);
-    setTimeout(() => drawGame(), 100);
-  }, 50);
+// Enhanced particle effect
+function createParticleEffect(x, y, color) {
+  const particles = [];
+  for (let i = 0; i < 8; i++) {
+    particles.push({
+      x: x + gridSize/2,
+      y: y + gridSize/2,
+      vx: (Math.random() - 0.5) * 8,
+      vy: (Math.random() - 0.5) * 8,
+      life: 20,
+      color: color
+    });
+  }
+  
+  const animateParticles = () => {
+    ctx.save();
+    particles.forEach((particle, index) => {
+      if (particle.life <= 0) {
+        particles.splice(index, 1);
+        return;
+      }
+      
+      ctx.globalAlpha = particle.life / 20;
+      ctx.fillStyle = particle.color;
+      ctx.fillRect(particle.x - 2, particle.y - 2, 4, 4);
+      
+      particle.x += particle.vx;
+      particle.y += particle.vy;
+      particle.vx *= 0.95;
+      particle.vy *= 0.95;
+      particle.life--;
+    });
+    ctx.restore();
+    
+    if (particles.length > 0) {
+      requestAnimationFrame(animateParticles);
+    }
+  };
+  
+  animateParticles();
 }
 
 // Enhanced game over with high scores
@@ -215,10 +356,12 @@ function gameOver() {
 function restartGame() {
   snake = [{ x: 10, y: 10 }];
   food = generateFood();
+  bigApple = null;
   dx = 0;
   dy = 0;
   score = 0;
-  gameSpeed = 150;
+  applesEaten = 0;
+  gameSpeed = 250;
   scoreEl.textContent = `Score: ${score}`;
   gameOverScreen.style.display = 'none';
   gameRunning = false;
@@ -226,7 +369,7 @@ function restartGame() {
   drawGame();
 }
 
-// Enhanced controls with better touch support
+// Enhanced controls
 function changeDirection(newDx, newDy) {
   // Prevent reverse direction
   if (newDx === -dx && newDy === -dy) return;
@@ -244,7 +387,6 @@ function changeDirection(newDx, newDy) {
 // Keyboard controls
 document.addEventListener('keydown', (e) => {
   if (!gameRunning && !gameStarted) {
-    // Start game with any arrow key
     switch (e.key) {
       case 'ArrowUp':
         changeDirection(0, -1);
@@ -281,8 +423,9 @@ document.addEventListener('keydown', (e) => {
 canvas.addEventListener('touchstart', (e) => {
   e.preventDefault();
   const touch = e.touches[0];
-  touchStartX = touch.clientX;
-  touchStartY = touch.clientY;
+  const rect = canvas.getBoundingClientRect();
+  touchStartX = touch.clientX - rect.left;
+  touchStartY = touch.clientY - rect.top;
 }, { passive: false });
 
 canvas.addEventListener('touchmove', (e) => {
@@ -295,8 +438,9 @@ canvas.addEventListener('touchend', (e) => {
   if (!touchStartX || !touchStartY) return;
   
   const touch = e.changedTouches[0];
-  const touchEndX = touch.clientX;
-  const touchEndY = touch.clientY;
+  const rect = canvas.getBoundingClientRect();
+  const touchEndX = touch.clientX - rect.left;
+  const touchEndY = touch.clientY - rect.top;
   
   const deltaX = touchEndX - touchStartX;
   const deltaY = touchEndY - touchStartY;
@@ -304,21 +448,19 @@ canvas.addEventListener('touchend', (e) => {
   const minSwipeDistance = 30;
   
   if (Math.abs(deltaX) > Math.abs(deltaY)) {
-    // Horizontal swipe
     if (Math.abs(deltaX) > minSwipeDistance) {
       if (deltaX > 0) {
-        changeDirection(1, 0); // Right
+        changeDirection(1, 0);
       } else {
-        changeDirection(-1, 0); // Left
+        changeDirection(-1, 0);
       }
     }
   } else {
-    // Vertical swipe
     if (Math.abs(deltaY) > minSwipeDistance) {
       if (deltaY > 0) {
-        changeDirection(0, 1); // Down
+        changeDirection(0, 1);
       } else {
-        changeDirection(0, -1); // Up
+        changeDirection(0, -1);
       }
     }
   }
@@ -355,17 +497,14 @@ function shareScore() {
     }).catch(console.error);
   } else if (navigator.clipboard) {
     navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
-      // Visual feedback
       shareBtn.textContent = '✅ Copied!';
       setTimeout(() => {
         shareBtn.textContent = '📤 Share Score';
       }, 2000);
     }).catch(() => {
-      // Fallback
       prompt('Copy this text to share your score:', `${shareText} ${shareUrl}`);
     });
   } else {
-    // Fallback for older browsers
     prompt('Copy this text to share your score:', `${shareText} ${shareUrl}`);
   }
 }
@@ -398,7 +537,7 @@ highScoresContainer.addEventListener('click', (e) => {
   }
 });
 
-// Game loop
+// Optimized game loop
 function gameLoop() {
   updateGame();
   requestAnimationFrame(gameLoop);
@@ -424,13 +563,12 @@ gameLoop();
 // Add resize handler for responsive canvas
 function resizeCanvas() {
   const container = document.getElementById('gameContainer');
-  const containerWidth = container.clientWidth - 32; // Account for padding
+  const containerWidth = container.clientWidth - 32;
   const size = Math.min(containerWidth, 400);
   
   canvas.width = size;
   canvas.height = size;
   
-  // Redraw after resize
   drawGame();
 }
 
