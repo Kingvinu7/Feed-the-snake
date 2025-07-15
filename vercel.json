@@ -10,21 +10,6 @@
     {
       "source": "/",
       "destination": "/api/index"
-    },
-    {
-      "source": "/snake.js",
-      "destination": "/api/static?file=snake.js"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*\\.js)$",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript"
-        }
-      ]
     }
   ]
 }
