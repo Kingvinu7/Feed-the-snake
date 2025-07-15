@@ -1,3 +1,39 @@
+// Farcaster SDK integration
+let farcasterSDK = null;
+let isInFrame = false;
+
+// Initialize Farcaster SDK
+async function initializeFarcaster() {
+  try {
+    if (typeof window.farcaster !== 'undefined') {
+      farcasterSDK = window.farcaster;
+      isInFrame = true;
+      
+      // Wait for SDK to be ready
+      await farcasterSDK.ready();
+      console.log('Farcaster SDK initialized successfully');
+      
+      // Add frame context
+      farcasterSDK.context.then(context => {
+        console.log('Frame context:', context);
+      });
+    } else {
+      console.log('Running outside of Farcaster frame');
+    }
+  } catch (error) {
+    console.error('Failed to initialize Farcaster SDK:', error);
+  }
+}
+
+// Hide loading screen
+function hideLoadingScreen() {
+  const loadingScreen = document.getElementById('loadingScreen');
+  if (loadingScreen) {
+    loadingScreen.classList.add('hidden');
+  }
+}
+
+// Game variables
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
@@ -12,9 +48,11 @@ const gameOverScreen = document.getElementById('gameOver');
 const finalScoreEl = document.getElementById('finalScore');
 const bestScoreEl = document.getElementById('bestScore');
 
+// Game constants
 const gridSize = 20;
-const tileCount = canvas.width / gridSize;
+let tileCount = Math.floor(canvas.width / gridSize);
 
+// Game state
 let snake = [{ x: 10, y: 10 }];
 let food = { x: 15, y: 15 };
 let bigApple = null;
@@ -30,7 +68,7 @@ let gameStarted = false;
 let touchStartX = 0;
 let touchStartY = 0;
 let lastMoveTime = 0;
-let gameSpeed = 250; // Slower speed
+let gameSpeed = 250;
 let highScores = JSON.parse(localStorage.getItem('highScores')) || [];
 
 // Game boundaries (with walls on left and right)
@@ -192,16 +230,16 @@ function drawGame() {
     
     ctx.shadowBlur = 0;
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 12px Orbitron';
+    ctx.font = 'bold 10px Orbitron';
     ctx.textAlign = 'center';
-    ctx.fillText(currentScore.toString(), bigAppleX + gridSize/2, bigAppleY + gridSize/2 + 4);
+    ctx.fillText(currentScore.toString(), bigAppleX + gridSize/2, bigAppleY + gridSize/2 + 3);
     
     // Countdown bar
     const timeLeft = Math.max(0, bigAppleCountdown - (Date.now() - bigApple.spawnTime));
     const barWidth = gridSize - 4;
-    const barHeight = 3;
+    const barHeight = 2;
     const barX = bigAppleX + 2;
-    const barY = bigAppleY - 8;
+    const barY = bigAppleY - 6;
     
     ctx.fillStyle = '#333';
     ctx.fillRect(barX, barY, barWidth, barHeight);
@@ -282,13 +320,13 @@ function updateGame() {
 // Enhanced particle effect
 function createParticleEffect(x, y, color) {
   const particles = [];
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 6; i++) {
     particles.push({
       x: x + gridSize/2,
       y: y + gridSize/2,
-      vx: (Math.random() - 0.5) * 8,
-      vy: (Math.random() - 0.5) * 8,
-      life: 20,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 6,
+      life: 15,
       color: color
     });
   }
@@ -301,9 +339,9 @@ function createParticleEffect(x, y, color) {
         return;
       }
       
-      ctx.globalAlpha = particle.life / 20;
+      ctx.globalAlpha = particle.life / 15;
       ctx.fillStyle = particle.color;
-      ctx.fillRect(particle.x - 2, particle.y - 2, 4, 4);
+      ctx.fillRect(particle.x - 1, particle.y - 1, 2, 2);
       
       particle.x += particle.vx;
       particle.y += particle.vy;
@@ -445,7 +483,7 @@ canvas.addEventListener('touchend', (e) => {
   const deltaX = touchEndX - touchStartX;
   const deltaY = touchEndY - touchStartY;
   
-  const minSwipeDistance = 30;
+  const minSwipeDistance = 20;
   
   if (Math.abs(deltaX) > Math.abs(deltaY)) {
     if (Math.abs(deltaX) > minSwipeDistance) {
@@ -484,11 +522,23 @@ function displayHighScores() {
   `).join('');
 }
 
-// Enhanced share functionality
+// Enhanced share functionality with Farcaster integration
 function shareScore() {
   const shareText = `🐍 I just scored ${score} points in Feed The Snake! Can you beat my score?`;
   const shareUrl = window.location.href;
   
+  // Try Farcaster sharing first if in frame
+  if (isInFrame && farcasterSDK) {
+    try {
+      // Farcaster sharing
+      farcasterSDK.actions.openUrl(shareUrl);
+      return;
+    } catch (error) {
+      console.error('Farcaster sharing failed:', error);
+    }
+  }
+  
+  // Fallback to native sharing
   if (navigator.share) {
     navigator.share({
       title: 'Feed The Snake - High Score!',
@@ -499,7 +549,7 @@ function shareScore() {
     navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
       shareBtn.textContent = '✅ Copied!';
       setTimeout(() => {
-        shareBtn.textContent = '📤 Share Score';
+        shareBtn.textContent = '📤 Share';
       }, 2000);
     }).catch(() => {
       prompt('Copy this text to share your score:', `${shareText} ${shareUrl}`);
@@ -555,26 +605,65 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Initialize game
-food = generateFood();
-drawGame();
-gameLoop();
-
-// Add resize handler for responsive canvas
+// Canvas resize handler
 function resizeCanvas() {
   const container = document.getElementById('gameContainer');
-  const containerWidth = container.clientWidth - 32;
-  const size = Math.min(containerWidth, 400);
+  const maxSize = Math.min(window.innerWidth * 0.9, window.innerHeight * 0.6, 400);
+  const size = Math.max(250, maxSize);
   
   canvas.width = size;
   canvas.height = size;
   
+  // Recalculate grid
+  tileCount = Math.floor(canvas.width / gridSize);
+  
+  // Adjust snake and food positions if needed
+  snake.forEach(segment => {
+    segment.x = Math.min(segment.x, tileCount - 2);
+    segment.y = Math.min(segment.y, tileCount - 1);
+  });
+  
+  food.x = Math.min(food.x, tileCount - 2);
+  food.y = Math.min(food.y, tileCount - 1);
+  
+  if (bigApple) {
+    bigApple.x = Math.min(bigApple.x, tileCount - 2);
+    bigApple.y = Math.min(bigApple.y, tileCount - 1);
+  }
+  
   drawGame();
 }
 
-// Initial resize and add event listener
-resizeCanvas();
+// Initialize game
+async function initGame() {
+  try {
+    // Initialize Farcaster SDK
+    await initializeFarcaster();
+    
+    // Set up canvas
+    resizeCanvas();
+    
+    // Initialize game state
+    food = generateFood();
+    drawGame();
+    
+    // Start game loop
+    gameLoop();
+    
+    // Hide loading screen
+    setTimeout(hideLoadingScreen, 1000);
+    
+  } catch (error) {
+    console.error('Failed to initialize game:', error);
+    hideLoadingScreen();
+  }
+}
+
+// Event listeners
 window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => {
+  setTimeout(resizeCanvas, 100);
+});
 
 // Prevent context menu on long press
 canvas.addEventListener('contextmenu', (e) => {
@@ -591,3 +680,10 @@ document.querySelectorAll('button').forEach(button => {
     button.style.transform = '';
   });
 });
+
+// Initialize everything when DOM is loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initGame);
+} else {
+  initGame();
+}
