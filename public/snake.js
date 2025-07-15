@@ -1,22 +1,25 @@
 // Farcaster SDK integration
-let farcasterSDK = null;
+let sdk = null;
 let isInFrame = false;
 
 // Initialize Farcaster SDK
 async function initializeFarcaster() {
   try {
-    if (typeof window.farcaster !== 'undefined') {
-      farcasterSDK = window.farcaster;
+    // Check if SDK is available
+    if (typeof window !== 'undefined' && window.farcaster) {
+      // Import SDK dynamically or use global
+      sdk = window.farcaster;
       isInFrame = true;
       
-      // Wait for SDK to be ready
-      await farcasterSDK.ready();
+      // Call ready when the app is fully loaded
+      await sdk.actions.ready();
       console.log('Farcaster SDK initialized successfully');
       
-      // Add frame context
-      farcasterSDK.context.then(context => {
+      // Get frame context if available
+      if (sdk.context) {
+        const context = await sdk.context();
         console.log('Frame context:', context);
-      });
+      }
     } else {
       console.log('Running outside of Farcaster frame');
     }
@@ -522,30 +525,44 @@ function displayHighScores() {
   `).join('');
 }
 
-// Enhanced share functionality with Farcaster integration
-function shareScore() {
-  const shareText = `🐍 I just scored ${score} points in Feed The Snake! Can you beat my score?`;
+// Enhanced share functionality with Farcaster composeCast
+async function shareScore() {
+  const shareText = `🐍 Just scored ${score} points in Feed The Snake! Can you beat my high score? 🎮`;
   const shareUrl = window.location.href;
   
-  // Try Farcaster sharing first if in frame
-  if (isInFrame && farcasterSDK) {
+  // Try Farcaster composeCast first if in frame
+  if (isInFrame && sdk) {
     try {
-      // Farcaster sharing
-      farcasterSDK.actions.openUrl(shareUrl);
+      await sdk.actions.composeCast({
+        text: shareText,
+        embeds: [shareUrl]
+      });
       return;
     } catch (error) {
-      console.error('Farcaster sharing failed:', error);
+      console.error('Farcaster composeCast failed:', error);
     }
   }
   
   // Fallback to native sharing
   if (navigator.share) {
-    navigator.share({
-      title: 'Feed The Snake - High Score!',
-      text: shareText,
-      url: shareUrl
-    }).catch(console.error);
-  } else if (navigator.clipboard) {
+    try {
+      await navigator.share({
+        title: 'Feed The Snake - High Score!',
+        text: shareText,
+        url: shareUrl
+      });
+    } catch (error) {
+      console.error('Native share failed:', error);
+      fallbackShare(shareText, shareUrl);
+    }
+  } else {
+    fallbackShare(shareText, shareUrl);
+  }
+}
+
+// Fallback share function
+function fallbackShare(shareText, shareUrl) {
+  if (navigator.clipboard) {
     navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
       shareBtn.textContent = '✅ Copied!';
       setTimeout(() => {
@@ -637,7 +654,7 @@ function resizeCanvas() {
 // Initialize game
 async function initGame() {
   try {
-    // Initialize Farcaster SDK
+    // Initialize Farcaster SDK first
     await initializeFarcaster();
     
     // Set up canvas
@@ -650,8 +667,8 @@ async function initGame() {
     // Start game loop
     gameLoop();
     
-    // Hide loading screen
-    setTimeout(hideLoadingScreen, 1000);
+    // Hide loading screen after everything is ready
+    setTimeout(hideLoadingScreen, 500);
     
   } catch (error) {
     console.error('Failed to initialize game:', error);
