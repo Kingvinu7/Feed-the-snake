@@ -1,4 +1,34 @@
+
 {
+  "frame": {
+    "name": "Feed The Snake",
+    "version": "1",
+    "iconUrl": "https://feed-the-snake-six.vercel.app/icon.png",
+    "homeUrl": "https://feed-the-snake-six.vercel.app",
+    "imageUrl": "https://feed-the-snake-six.vercel.app/preview.png",
+    "buttonTitle": "Feed The Snakey",
+    "splashImageUrl": "https://feed-the-snake-six.vercel.app/splash.png",
+    "splashBackgroundColor": "#0D0F1A",
+    "subtitle": "Classic game with neon glow ",
+    "description": "play the classic Snake Game, feed and control the snake without hitting yourself and the wall,",
+    "primaryCategory": "games",
+    "screenshotUrls": [
+      "https://feed-the-snake-six.vercel.app/screenshot.png"
+    ],
+    "heroImageUrl": "https://feed-the-snake-six.vercel.app/hero.png",
+    "tags": [
+      "game",
+      "miniapp",
+      "trending",
+      "classic",
+      "snake"
+    ],
+    "tagline": "old classic game,New neon glow",
+    "ogTitle": "Feed The Snake-Classic game ",
+    "ogDescription": "play the addictive classic Snake Game on Farcaster, built by vinu07",
+    "ogImageUrl": "https://feed-the-snake-six.vercel.app/preview.png",
+    "castShareUrl": "https://warpcast.com/~/compose?text=Feed%20the%20neon%20snakey!%20🐍✨&embeds[]=https://feed-the-snake-six.vercel.app"
+  },
   "accountAssociation": {
     "header": "eyJmaWQiOjI1MDg2OSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDQwZUY3Qzc1YjRlRDBkQjY3N0MzN2VjODkxODM0QjI1MDk1ODI1ZDYifQ",
     "payload": "eyJkb21haW4iOiJmZWVkLXRoZS1zbmFrZS1zaXgudmVyY2VsLmFwcCJ9",
