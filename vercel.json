@@ -5,5 +5,26 @@
       "destination": "https://api.farcaster.xyz/miniapps/hosted-manifest/01980cee-578d-f711-14c8-ae236313c63a",
       "statusCode": 307
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/index",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
   ]
 }
