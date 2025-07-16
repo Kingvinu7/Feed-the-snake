@@ -5,14 +5,21 @@ let isInFrame = false;
 // Initialize Farcaster Frame SDK
 async function initializeFarcaster() {
   try {
-    // Check if Frame SDK is available
     if (typeof window.FrameSDK !== 'undefined') {
       sdk = window.FrameSDK;
       isInFrame = true;
-      
+
       console.log('Farcaster Frame SDK initialized');
-      
-      // Get context if available
+
+      // ✅ Tell Farcaster the app is ready
+      if (sdk.actions && typeof sdk.actions.ready === 'function') {
+        await sdk.actions.ready();
+        console.log('✅ Farcaster SDK ready called');
+      } else {
+        console.warn('⚠️ sdk.actions.ready not available');
+      }
+
+      // Optional: log context
       if (sdk.context) {
         try {
           const context = await sdk.context;
@@ -26,14 +33,6 @@ async function initializeFarcaster() {
     }
   } catch (err) {
     console.error('Error initializing Farcaster Frame SDK:', err);
-  }
-}
-
-// Hide loading screen function
-function hideLoadingScreen() {
-  const loadingScreen = document.getElementById('loadingScreen');
-  if (loadingScreen) {
-    loadingScreen.classList.add('hidden');
   }
 }
 
