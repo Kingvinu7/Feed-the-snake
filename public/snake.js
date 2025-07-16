@@ -1,41 +1,40 @@
-// Farcaster SDK integration
-let farcasterSDK = null;
+// Farcaster Frame SDK integration
+let sdk = null;
 let isInFrame = false;
 
-// Initialize Farcaster SDK
+// Initialize Farcaster Frame SDK
 async function initializeFarcaster() {
   try {
-    if (typeof window.farcaster !== 'undefined') {
-      farcasterSDK = window.farcaster;
+    // Check if Frame SDK is available
+    if (typeof window.FrameSDK !== 'undefined') {
+      sdk = window.FrameSDK;
       isInFrame = true;
-
-      // Wait for SDK to be ready
-      if (farcasterSDK.actions && typeof farcasterSDK.actions.ready === 'function') {
-        await farcasterSDK.actions.ready();
-        console.log('Farcaster SDK is ready!');
-      } else {
-        console.warn('farcaster.actions.ready not available.');
-      }
-
-      // Log context
-      if (farcasterSDK.context) {
-        farcasterSDK.context.then(context => {
+      
+      console.log('Farcaster Frame SDK initialized');
+      
+      // Get context if available
+      if (sdk.context) {
+        try {
+          const context = await sdk.context;
           console.log('Farcaster frame context:', context);
-        });
+        } catch (contextError) {
+          console.warn('Could not get frame context:', contextError);
+        }
       }
     } else {
       console.log('Not running inside a Farcaster frame');
     }
   } catch (err) {
-    console.error('Error initializing Farcaster SDK:', err);
+    console.error('Error initializing Farcaster Frame SDK:', err);
   }
 }
 
-// Call it on DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeFarcaster);
-} else {
-  initializeFarcaster();
+// Hide loading screen function
+function hideLoadingScreen() {
+  const loadingScreen = document.getElementById('loadingScreen');
+  if (loadingScreen) {
+    loadingScreen.classList.add('hidden');
+  }
 }
 
 // Game variables
