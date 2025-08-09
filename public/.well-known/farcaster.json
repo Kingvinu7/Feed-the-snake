@@ -1,0 +1,36 @@
+{
+  "frame": {
+    "name": "Feed The Snake",
+    "version": "1",
+    "iconUrl": "https://feed-the-snake-six.vercel.app/icon.png",
+    "homeUrl": "https://feed-the-snake-six.vercel.app",
+    "imageUrl": "https://feed-the-snake-six.vercel.app/preview.png",
+    "buttonTitle": "Go feed it",
+    "splashImageUrl": "https://feed-the-snake-six.vercel.app/splash3.png",
+    "splashBackgroundColor": "#39FF14",
+    "subtitle": "Classic game with neon glow ",
+    "description": "play the classic Snake Game, feed and control the snake without hitting yourself and the wall, built by vinu07 ",
+    "screenshotUrls": [
+      "https://feed-the-snake-six.vercel.app/screenshot.png"
+    ],
+    "primaryCategory": "games",
+    "tags": [
+      "game",
+      "miniapp",
+      "trending",
+      "classic",
+      "snake"
+    ],
+    "heroImageUrl": "https://feed-the-snake-six.vercel.app/hero.png",
+    "tagline": "old classic game,New neon glow",
+    "ogTitle": "Feed The Snake-Classic game ",
+    "ogDescription": "play the addictive classic Snake Game on Farcaster, built by vinu07",
+    "ogImageUrl": "https://feed-the-snake-six.vercel.app/preview.png",
+    "castShareUrl": "https://feed-the-snake-six.vercel.app"
+  },
+  "accountAssociation": {
+    "header": "eyJmaWQiOjI1MDg2OSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDQwZUY3Qzc1YjRlRDBkQjY3N0MzN2VjODkxODM0QjI1MDk1ODI1ZDYifQ",
+    "payload": "eyJkb21haW4iOiJmZWVkLXRoZS1zbmFrZS1zaXgudmVyY2VsLmFwcCJ9",
+    "signature": "MHgzNTI0MWMyZGEyNjkxNDAzNWY2YTE5ZjJkNzg2NWZjODkxOTQ2OWJmZTVhMjI3YWY1NzE2M2YzMzRkYzFhMzFjNThmMDUyYzNmZjFlODg4MmFhNWY0MGQwZDgzNGM4NGMxNmI5MzI4MGQ1NTcxZjNjZWQxOTFlN2Y4NWUyYTVkMDFi"
+  }
+}
