@@ -1,67 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>🐍 Feed The Snake</title>
-  
+
   <!-- Essential Open Graph Meta Tags -->
-  <meta property="og:title" content="Feed The Snake - Classic game">
-  <meta property="og:description" content="play the addictive classic Snake Game on Farcaster, built by vinu07">
-  <meta property="og:image" content="https://feed-the-snake-six.vercel.app/preview.png">
-  <meta property="og:url" content="https://feed-the-snake-six.vercel.app">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Feed The Snake">
-  
+  <meta property="og:title" content="Feed The Snake - Classic game" />
+  <meta property="og:description" content="play the addictive classic Snake Game on Farcaster, built by vinu07" />
+  <meta property="og:image" content="https://feed-the-snake-six.vercel.app/preview.png" />
+  <meta property="og:url" content="https://feed-the-snake-six.vercel.app" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Feed The Snake" />
+
   <!-- Twitter Card Meta Tags -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Feed The Snake - Classic game">
-  <meta name="twitter:description" content="play the addictive classic Snake Game on Farcaster, built by vinu07">
-  <meta name="twitter:image" content="https://feed-the-snake-six.vercel.app/preview.png">
-  <meta name="twitter:creator" content="@vinu07">
-  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Feed The Snake - Classic game" />
+  <meta name="twitter:description" content="play the addictive classic Snake Game on Farcaster, built by vinu07" />
+  <meta name="twitter:image" content="https://feed-the-snake-six.vercel.app/preview.png" />
+  <meta name="twitter:creator" content="@vinu07" />
+
   <!-- Additional Meta Tags -->
-  <meta name="description" content="play the classic Snake Game, feed and control the snake without hitting yourself and the wall, built by vinu07">
-  <meta name="keywords" content="snake game, classic game, arcade, retro, neon, farcaster, mini app">
-  <meta name="author" content="vinu07">
-  <meta name="robots" content="index, follow">
-  
+  <meta name="description" content="play the classic Snake Game, feed and control the snake without hitting yourself and the wall, built by vinu07" />
+  <meta name="keywords" content="snake game, classic game, arcade, retro, neon, farcaster, mini app" />
+  <meta name="author" content="vinu07" />
+  <meta name="robots" content="index, follow" />
+
   <!-- Theme and Mobile Meta Tags -->
-  <meta name="theme-color" content="#39FF14">
-  <meta name="msapplication-navbutton-color" content="#39FF14">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Feed The Snake">
-  
+  <meta name="theme-color" content="#39FF14" />
+  <meta name="msapplication-navbutton-color" content="#39FF14" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Feed The Snake" />
+
   <!-- Farcaster Frame Meta Tags -->
   <meta name="farcaster:frame" content="vNext" />
-  <meta name="fc:frame" content="vNext">
-  <meta name="fc:frame:image" content="https://feed-the-snake-six.vercel.app/preview.png">
-  <meta name="fc:frame:button:1" content="Go feed it">
-  <meta name="fc:frame:button:1:action" content="link">
-  <meta name="fc:frame:button:1:target" content="https://feed-the-snake-six.vercel.app">
-  
+  <meta name="fc:frame" content="vNext" />
+  <meta name="fc:frame:image" content="https://feed-the-snake-six.vercel.app/preview.png" />
+  <meta name="fc:frame:button:1" content="Go feed it" />
+  <meta name="fc:frame:button:1:action" content="link" />
+  <meta name="fc:frame:button:1:target" content="https://feed-the-snake-six.vercel.app" />
+
   <!-- Preload Critical Resources -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" as="style">
-  <link rel="preload" href="https://feed-the-snake-six.vercel.app/hero.png" as="image">
-  
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" as="style" />
+  <link rel="preload" href="https://feed-the-snake-six.vercel.app/hero.png" as="image" />
+
   <!-- Favicon and App Icons -->
-  <link rel="icon" href="https://feed-the-snake-six.vercel.app/icon.png" type="image/png">
-  <link rel="apple-touch-icon" href="https://feed-the-snake-six.vercel.app/icon.png">
-  <link rel="shortcut icon" href="https://feed-the-snake-six.vercel.app/icon.png">
-  
+  <link rel="icon" href="https://feed-the-snake-six.vercel.app/icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="https://feed-the-snake-six.vercel.app/icon.png" />
+  <link rel="shortcut icon" href="https://feed-the-snake-six.vercel.app/icon.png" />
+
   <!-- Web App Manifest -->
-  <link rel="manifest" href="https://feed-the-snake-six.vercel.app/manifest.json">
-  
+  <link rel="manifest" href="https://feed-the-snake-six.vercel.app/manifest.json" />
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
-    
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-    
+
     html, body {
       width: 100%;
       height: 100%;
@@ -81,28 +81,6 @@
       padding: 10px;
       position: relative;
       z-index: 1;
-    }
-
-    /* Loading/Splash Screen */
-    #loadingScreen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 50%, #2d2d5f 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      color: #00ff88;
-      font-size: 1.5rem;
-      text-align: center;
-    }
-
-    #loadingScreen.hidden {
-      display: none;
     }
 
     /* Animated background stars */
@@ -205,369 +183,350 @@
     }
 
     #gameOver {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.95);
-      color: #ff4444;
-      padding: 20px;
-      border-radius: 15px;
-      text-align: center;
-      border: 2px solid #ff4444;
-      box-shadow: 
-        0 0 20px rgba(255, 68, 68, 0.5),
-        inset 0 0 20px rgba(255, 68, 68, 0.1);
-      backdrop-filter: blur(10px);
-      display: none;
-      z-index: 1000;
-      animation: gameOverPulse 2s ease-in-out infinite;
-      max-width: 80vw;
-    }
-
-    @keyframes gameOverPulse {
-      0%, 100% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-50%, -50%) scale(1.05); }
-    }
-
-    #gameOver .title {
-      font-size: clamp(1.5rem, 4vw, 2rem);
-      font-weight: 900;
-      margin-bottom: 10px;
-      text-shadow: 0 0 15px #ff4444;
-    }
-
-    #gameOver .finalScore {
-      font-size: clamp(1rem, 3vw, 1.3rem);
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: #00ff88;
-      text-shadow: 0 0 10px #00ff88;
-    }
-
-    #gameOver .message {
-      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-      font-weight: 400;
-      margin-bottom: 15px;
-      color: #ffffff;
-    }
-
-    #controlsContainer {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-      margin: 15px 0;
-      padding: 0 10px;
-      width: 100%;
-      max-width: 500px;
-    }
-
-    button {
-      background: linear-gradient(45deg, #00ff88, #00cc66);
-      color: #000;
-      border: none;
-      padding: 10px 16px;
-      font-size: clamp(0.8rem, 2vw, 1rem);
-      font-weight: 700;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: 'Orbitron', monospace;
-      letter-spacing: 1px;
-      box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
-      text-transform: uppercase;
-      flex: 1;
-      min-width: 120px;
-      max-width: 200px;
-      white-space: nowrap;
-      z-index: 100;
-      position: relative;
-    }
-
-    button:hover {
-      background: linear-gradient(45deg, #00cc66, #00ff88);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 255, 136, 0.5);
-    }
-
-    button:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 10px rgba(0, 255, 136, 0.3);
-    }
-
-    #instructions {
-      text-align: center;
-      color: #ffffff;
-      font-size: clamp(0.7rem, 1.5vw, 0.9rem);
-      margin: 10px 0;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(5px);
-      max-width: 400px;
-      margin: 10px auto;
-    }
-
-    .emoji {
-      font-size: 1.2em;
-      margin-right: 5px;
-    }
-
-    .feature-highlight {
-      color: #00ff88;
-      font-weight: 700;
-      text-shadow: 0 0 5px #00ff88;
-    }
-
-    #highScoresContainer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-      backdrop-filter: blur(10px);
-      padding: 20px;
-    }
-
-    #highScoresModal {
-      background: linear-gradient(135deg, #1a1a3a 0%, #2d2d5f 100%);
-      color: #ffffff;
-      padding: 20px;
-      border-radius: 15px;
-      border: 2px solid #00ff88;
-      box-shadow: 
-        0 0 30px rgba(0, 255, 136, 0.5),
-        inset 0 0 30px rgba(0, 255, 136, 0.1);
-      max-width: 90vw;
-      max-height: 80vh;
-      overflow-y: auto;
-      text-align: center;
-      animation: modalSlideIn 0.3s ease-out;
-    }
-
-    @keyframes modalSlideIn {
-      from { transform: scale(0.8); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    #highScoresTitle {
-      font-size: clamp(1.3rem, 4vw, 1.8rem);
-      font-weight: 900;
-      color: #00ff88;
-      text-shadow: 0 0 15px #00ff88;
-      margin-bottom: 15px;
-    }
-
-    #highScoresList {
-      min-height: 150px;
-      margin: 15px 0;
-      padding: 10px;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 10px;
-      border: 1px solid rgba(0, 255, 136, 0.3);
-    }
-
-    .high-score-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 12px;
-      margin: 5px 0;
-      background: rgba(0, 255, 136, 0.1);
-      border-radius: 8px;
-      border-left: 4px solid #00ff88;
-      font-size: clamp(0.8rem, 2vw, 1rem);
-    }
-
-    .high-score-item:nth-child(1) { border-left-color: #ffd700; }
-    .high-score-item:nth-child(2) { border-left-color: #c0c0c0; }
-    .high-score-item:nth-child(3) { border-left-color: #cd7f32; }
-
-    .high-score-rank {
-      font-weight: 700;
-      color: #00ff88;
-      min-width: 30px;
-    }
-
-    .high-score-value {
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    .high-score-date {
-      font-size: 0.8em;
-      color: #aaaaaa;
-      margin-left: 8px;
-    }
-
-    #modalButtons {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 15px;
-    }
-
-    /* Mobile optimizations */
-    @media (max-width: 768px) {
-      #app {
-        padding: 5px;
-      }
-      
-      #gameContainer {
-        margin: 5px;
-        padding: 10px;
-      }
-      
-      #game {
-        width: min(90vw, 350px);
-        height: min(90vw, 350px);
-      }
-      
-      #controlsContainer {
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-      }
-      
-      button {
-        width: 100%;
-        max-width: 250px;
-        min-width: unset;
-      }
-      
-      #instructions {
-        font-size: 0.8rem;
-        padding: 8px;
-      }
-      
-      #highScoresModal {
-        padding: 15px;
-        max-width: 95vw;
-      }
-    }
-
-    /* Farcaster Frame optimizations */
-    @media (max-width: 480px) {
-      #gameTitle {
-        font-size: 1.5rem;
-        margin: 5px 0;
-      }
-      
-      #game {
-        width: min(85vw, 300px);
-        height: min(85vw, 300px);
-      }
-      
-      #scoreContainer {
-        padding: 6px 10px;
-      }
-      
-      button {
-        padding: 8px 12px;
-        font-size: 0.8rem;
-      }
-    }
-
-    /* Loading animation */
-    .loading {
-      color: #00ff88;
-      font-size: 1.2rem;
-      text-align: center;
-      animation: loadingPulse 1s ease-in-out infinite;
-    }
-
-    @keyframes loadingPulse {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 1; }
-    }
-
-    /* Accessibility improvements */
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-
-    /* High contrast mode */
-    @media (prefers-contrast: high) {
-      #gameContainer {
-        border-color: #ffffff;
-        background: rgba(0, 0, 0, 0.9);
-      }
-      
-      #game {
-        border-color: #ffffff;
-      }
-      
-      button {
-        background: #ffffff;
-        color: #000000;
-      }
-    }
-  </style>
-</head>
-<body>
-  <!-- Loading Screen -->
-  <div id="loadingScreen">
-    <div>🐍 Loading Feed The Snake...</div>
-    <div style="font-size: 1rem; margin-top: 10px; opacity: 0.7;">Preparing your game...</div>
-  </div>
-
-  <div id="app">
-    <div id="gameTitle">🐍 FEED THE SNAKE</div>
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(0, 0, 0, 0.95);
+          color: #ff4444;
+          padding: 20px;
+          border-radius: 15px;
+          text-align: center;
+          border: 2px solid #ff4444;
+          box-shadow: 
+            0 0 20px rgba(255, 68, 68, 0.5),
+            inset 0 0 20px rgba(255, 68, 68, 0.1);
+          backdrop-filter: blur(10px);
+          display: none;
+          z-index: 1000;
+          animation: gameOverPulse 2s ease-in-out infinite;
+          max-width: 80vw;
+        }
     
-    <div id="gameContainer">
-      <div id="scoreContainer">
-        <div id="score">Score: 0</div>
-        <div id="bestScore">Best: 0</div>
+        @keyframes gameOverPulse {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); }
+          50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+    
+        #gameOver .title {
+          font-size: clamp(1.5rem, 4vw, 2rem);
+          font-weight: 900;
+          margin-bottom: 10px;
+          text-shadow: 0 0 15px #ff4444;
+        }
+    
+        #gameOver .finalScore {
+          font-size: clamp(1rem, 3vw, 1.3rem);
+          font-weight: 700;
+          margin-bottom: 8px;
+          color: #00ff88;
+          text-shadow: 0 0 10px #00ff88;
+        }
+    
+        #gameOver .message {
+          font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+          font-weight: 400;
+          margin-bottom: 15px;
+          color: #ffffff;
+        }
+    
+        #controlsContainer {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          justify-content: center;
+          margin: 15px 0;
+          padding: 0 10px;
+          width: 100%;
+          max-width: 500px;
+        }
+    
+        button {
+          background: linear-gradient(45deg, #00ff88, #00cc66);
+          color: #000;
+          border: none;
+          padding: 10px 16px;
+          font-size: clamp(0.8rem, 2vw, 1rem);
+          font-weight: 700;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-family: 'Orbitron', monospace;
+          letter-spacing: 1px;
+          box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+          text-transform: uppercase;
+          flex: 1;
+          min-width: 120px;
+          max-width: 200px;
+          white-space: nowrap;
+          z-index: 100;
+          position: relative;
+        }
+    
+        button:hover {
+          background: linear-gradient(45deg, #00cc66, #00ff88);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(0, 255, 136, 0.5);
+        }
+    
+        button:active {
+          transform: translateY(0);
+          box-shadow: 0 2px 10px rgba(0, 255, 136, 0.3);
+        }
+    
+        #instructions {
+          text-align: center;
+          color: #ffffff;
+          font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+          margin: 10px 0;
+          padding: 10px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(5px);
+          max-width: 400px;
+          margin: 10px auto;
+        }
+    
+        .emoji {
+          font-size: 1.2em;
+          margin-right: 5px;
+        }
+    
+        .feature-highlight {
+          color: #00ff88;
+          font-weight: 700;
+          text-shadow: 0 0 5px #00ff88;
+        }
+    
+        #highScoresContainer {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.8);
+          display: none;
+          justify-content: center;
+          align-items: center;
+          z-index: 2000;
+          backdrop-filter: blur(10px);
+          padding: 20px;
+        }
+    
+        #highScoresModal {
+          background: linear-gradient(135deg, #1a1a3a 0%, #2d2d5f 100%);
+          color: #ffffff;
+          padding: 20px;
+          border-radius: 15px;
+          border: 2px solid #00ff88;
+          box-shadow: 
+            0 0 30px rgba(0, 255, 136, 0.5),
+            inset 0 0 30px rgba(0, 255, 136, 0.1);
+          max-width: 90vw;
+          max-height: 80vh;
+          overflow-y: auto;
+          text-align: center;
+          animation: modalSlideIn 0.3s ease-out;
+        }
+    
+        @keyframes modalSlideIn {
+          from { transform: scale(0.8); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+    
+        #highScoresTitle {
+          font-size: clamp(1.3rem, 4vw, 1.8rem);
+          font-weight: 900;
+          color: #00ff88;
+          text-shadow: 0 0 15px #00ff88;
+          margin-bottom: 15px;
+        }
+    
+        #highScoresList {
+          min-height: 150px;
+          margin: 15px 0;
+          padding: 10px;
+          background: rgba(0, 0, 0, 0.3);
+          border-radius: 10px;
+          border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+    
+        .high-score-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 12px;
+          margin: 5px 0;
+          background: rgba(0, 255, 136, 0.1);
+          border-radius: 8px;
+          border-left: 4px solid #00ff88;
+          font-size: clamp(0.8rem, 2vw, 1rem);
+        }
+    
+        .high-score-item:nth-child(1) { border-left-color: #ffd700; }
+        .high-score-item:nth-child(2) { border-left-color: #c0c0c0; }
+        .high-score-item:nth-child(3) { border-left-color: #cd7f32; }
+    
+        .high-score-rank {
+          font-weight: 700;
+          color: #00ff88;
+          min-width: 30px;
+        }
+    
+        .high-score-value {
+          font-weight: 700;
+          color: #ffffff;
+        }
+    
+        .high-score-date {
+          font-size: 0.8em;
+          color: #aaaaaa;
+          margin-left: 8px;
+        }
+    
+        #modalButtons {
+          display: flex;
+          gap: 8px;
+          justify-content: center;
+          flex-wrap: wrap;
+          margin-top: 15px;
+        }
+    
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+          #app {
+            padding: 5px;
+          }
+          
+          #gameContainer {
+            margin: 5px;
+            padding: 10px;
+          }
+          
+          #game {
+            width: min(90vw, 350px);
+            height: min(90vw, 350px);
+          }
+          
+          #controlsContainer {
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+          }
+          
+          button {
+            width: 100%;
+            max-width: 250px;
+            min-width: unset;
+          }
+          
+          #instructions {
+            font-size: 0.8rem;
+            padding: 8px;
+          }
+          
+          #highScoresModal {
+            padding: 15px;
+            max-width: 95vw;
+          }
+        }
+    
+        /* Farcaster Frame optimizations */
+        @media (max-width: 480px) {
+          #gameTitle {
+            font-size: 1.5rem;
+            margin: 5px 0;
+          }
+          
+          #game {
+            width: min(85vw, 300px);
+            height: min(85vw, 300px);
+          }
+          
+          #scoreContainer {
+            padding: 6px 10px;
+          }
+          
+          button {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+          }
+        }
+    
+        /* Accessibility improvements */
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
+    
+        /* High contrast mode */
+        @media (prefers-contrast: high) {
+          #gameContainer {
+            border-color: #ffffff;
+            background: rgba(0, 0, 0, 0.9);
+          }
+          
+          #game {
+            border-color: #ffffff;
+          }
+          
+          button {
+            background: #ffffff;
+            color: #000000;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div id="app">
+        <div id="gameTitle">🐍 FEED THE SNAKE</div>
+        
+        <div id="gameContainer">
+          <div id="scoreContainer">
+            <div id="score">Score: 0</div>
+            <div id="bestScore">Best: 0</div>
+          </div>
+          
+          <canvas id="game" width="350" height="350"></canvas>
+          
+          <div id="gameOver">
+            <div class="title">GAME OVER!</div>
+            <div class="finalScore" id="finalScore">Final Score: 0</div>
+            <div class="message">You hit the wall!</div>
+          </div>
+        </div>
+    
+        <div id="controlsContainer">
+          <button id="restartBtn">🔄 Restart</button>
+          <button id="shareBtn">📤 Share</button>
+          <button id="highScoresBtn">🏆 Scores</button>
+        </div>
+    
+        <div id="instructions">
+          <span class="emoji">🎮</span>
+          <span class="feature-highlight">Swipe</span> or use <span class="feature-highlight">arrow keys</span> to control<br>
+          <span class="emoji">🔥</span>
+          Collect <span class="feature-highlight">golden apples</span> for bonus points!
+        </div>
       </div>
-      
-      <canvas id="game" width="350" height="350"></canvas>
-      
-      <div id="gameOver">
-        <div class="title">GAME OVER!</div>
-        <div class="finalScore" id="finalScore">Final Score: 0</div>
-        <div class="message">You hit the wall!</div>
+    
+      <div id="highScoresContainer">
+        <div id="highScoresModal">
+          <h3 id="highScoresTitle">🏆 High Scores</h3>
+          <div id="highScoresList"></div>
+          <div id="modalButtons">
+            <button id="clearHighScoresBtn">🗑️ Clear</button>
+            <button id="closeHighScoresBtn">❌ Close</button>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <div id="controlsContainer">
-      <button id="restartBtn">🔄 Restart</button>
-      <button id="shareBtn">📤 Share</button>
-      <button id="highScoresBtn">🏆 Scores</button>
-    </div>
-
-    <div id="instructions">
-      <span class="emoji">🎮</span>
-      <span class="feature-highlight">Swipe</span> or use <span class="feature-highlight">arrow keys</span> to control<br>
-      <span class="emoji">🔥</span>
-      Collect <span class="feature-highlight">golden apples</span> for bonus points!
-    </div>
-  </div>
-
-  <div id="highScoresContainer">
-    <div id="highScoresModal">
-      <h3 id="highScoresTitle">🏆 High Scores</h3>
-      <div id="highScoresList"></div>
-      <div id="modalButtons">
-        <button id="clearHighScoresBtn">🗑️ Clear</button>
-        <button id="closeHighScoresBtn">❌ Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Updated Farcaster Frame SDK -->
-  <script src="https://unpkg.com/@farcaster/frame-sdk@0.13.1/dist/index.js"></script>
-  <script src="snake.js"></script>
-</body>
-</html>
+    
+      <!-- Updated Farcaster Frame SDK -->
+      <script src="https://unpkg.com/@farcaster/frame-sdk@0.13.1/dist/index.js"></script>
+      <script src="snake.js"></script>
+    </body>
+    </html>
