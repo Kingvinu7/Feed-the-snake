@@ -1,31 +1,13 @@
-// Dynamic import for Farcaster Miniapp SDK
-let miniapp = null;
+// Import Farcaster Miniapp SDK
+import { miniapp } from '@farcaster/miniapp-sdk';
+
 let sdk = null;
 let isInFrame = false;
 let frameContext = null;
 
-// Load Farcaster Miniapp SDK dynamically
-async function loadFarcasterSDK() {
-  try {
-    // Try to import from CDN
-    const module = await import('https://unpkg.com/@farcaster/miniapp-sdk@latest/dist/miniapp-sdk.esm.js');
-    miniapp = module.miniapp || module.default || module;
-    return true;
-  } catch (error) {
-    console.log('Could not load Farcaster SDK:', error);
-    return false;
-  }
-}
-
 // Initialize Farcaster Miniapp SDK
 async function initializeFarcaster() {
   try {
-    const loaded = await loadFarcasterSDK();
-    if (!loaded || !miniapp) {
-      console.log('Not running inside a Farcaster frame or SDK unavailable');
-      return;
-    }
-
     // Initialize the SDK
     await miniapp.init();
     sdk = miniapp;
@@ -41,7 +23,7 @@ async function initializeFarcaster() {
     setupMiniappFeatures();
 
   } catch (error) {
-    console.log('Error initializing Farcaster SDK:', error);
+    console.log('Not running inside a Farcaster frame or SDK unavailable:', error);
     isInFrame = false;
   }
 }
@@ -49,6 +31,8 @@ async function initializeFarcaster() {
 // Setup miniapp-specific features
 function setupMiniappFeatures() {
   if (!isInFrame || !sdk) return;
+
+  // Add any miniapp-specific features here
   console.log('Setting up miniapp features');
 }
 
