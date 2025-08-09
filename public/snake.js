@@ -669,6 +669,7 @@ function resizeCanvas() {
 }
 
 // Initialize game
+// Initialize everything when DOM is loaded
 async function initGame() {
   try {
     showLoadingScreen();
@@ -683,10 +684,12 @@ async function initGame() {
     food = generateFood();
     drawGame();
     
-    // Start game loop
-    gameLoop();
+    // Tell the Farcaster client the app is ready
+    if (isInFrame && sdk) {
+        await sdk.actions.ready();
+    }
     
-    // Hide loading screen after everything is ready
+    // Hide our loading screen after everything is ready
     setTimeout(hideLoadingScreen, 500);
     
   } catch (error) {
@@ -694,6 +697,7 @@ async function initGame() {
     hideLoadingScreen();
   }
 }
+
 
 // Event listeners
 window.addEventListener('resize', resizeCanvas);
