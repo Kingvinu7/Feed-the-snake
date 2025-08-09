@@ -1,38 +1,70 @@
-// Farcaster Frame SDK integration
+// Dynamic import for Farcaster Miniapp SDK
+let miniapp = null;
 let sdk = null;
 let isInFrame = false;
+let frameContext = null;
 
-// Initialize Farcaster Frame SDK
+// Load Farcaster Miniapp SDK dynamically
+async function loadFarcasterSDK() {
+  try {
+    // Try to import from CDN
+    const module = await import('https://unpkg.com/@farcaster/miniapp-sdk@latest/dist/miniapp-sdk.esm.js');
+    miniapp = module.miniapp || module.default || module;
+    return true;
+  } catch (error) {
+    console.log('Could not load Farcaster SDK:', error);
+    return false;
+  }
+}
+
+// Initialize Farcaster Miniapp SDK
 async function initializeFarcaster() {
   try {
-    if (typeof window.FrameSDK !== 'undefined') {
-      sdk = window.FrameSDK;
-      isInFrame = true;
-
-      console.log('Farcaster Frame SDK initialized');
-
-      // ✅ Tell Farcaster the app is ready
-      if (sdk.actions && typeof sdk.actions.ready === 'function') {
-        await sdk.actions.ready();
-        console.log('✅ Farcaster SDK ready called');
-      } else {
-        console.warn('⚠️ sdk.actions.ready not available');
-      }
-
-      // Optional: log context
-      if (sdk.context) {
-        try {
-          const context = await sdk.context;
-          console.log('Farcaster frame context:', context);
-        } catch (contextError) {
-          console.warn('Could not get frame context:', contextError);
-        }
-      }
-    } else {
-      console.log('Not running inside a Farcaster frame');
+    const loaded = await loadFarcasterSDK();
+    if (!loaded || !miniapp) {
+      console.log('Not running inside a Farcaster frame or SDK unavailable');
+      return;
     }
-  } catch (err) {
-    console.error('Error initializing Farcaster Frame SDK:', err);
+
+    // Initialize the SDK
+    await miniapp.init();
+    sdk = miniapp;
+    isInFrame = true;
+
+    console.log('✅ Farcaster Miniapp SDK initialized');
+
+    // Get frame context
+    frameContext = await sdk.context;
+    console.log('Frame context:', frameContext);
+
+    // Additional setup if needed
+    setupMiniappFeatures();
+
+  } catch (error) {
+    console.log('Error initializing Farcaster SDK:', error);
+    isInFrame = false;
+  }
+}
+
+// Setup miniapp-specific features
+function setupMiniappFeatures() {
+  if (!isInFrame || !sdk) return;
+  console.log('Setting up miniapp features');
+}
+
+// Show loading screen
+function showLoadingScreen() {
+  const loadingScreen = document.getElementById('loadingScreen');
+  if (loadingScreen) {
+    loadingScreen.classList.remove('hidden');
+  }
+}
+
+// Hide loading screen
+function hideLoadingScreen() {
+  const loadingScreen = document.getElementById('loadingScreen');
+  if (loadingScreen) {
+    loadingScreen.classList.add('hidden');
   }
 }
 
@@ -525,21 +557,22 @@ function displayHighScores() {
   `).join('');
 }
 
-// Enhanced share functionality with Farcaster composeCast
+// Enhanced share functionality with Farcaster miniapp
 async function shareScore() {
   const shareText = `🐍 Just scored ${score} points in Feed The Snake! Can you beat my high score? 🎮`;
   const shareUrl = window.location.href;
   
-  // Try Farcaster composeCast first if in frame
+  // Try Farcaster miniapp share first if in frame
   if (isInFrame && sdk) {
     try {
-      await sdk.actions.composeCast({
+      // Use the miniapp SDK to share
+      await sdk.share({
         text: shareText,
-        embeds: [shareUrl]
+        url: shareUrl
       });
       return;
     } catch (error) {
-      console.error('Farcaster composeCast failed:', error);
+      console.error('Farcaster miniapp share failed:', error);
     }
   }
   
@@ -654,6 +687,8 @@ function resizeCanvas() {
 // Initialize game
 async function initGame() {
   try {
+    showLoadingScreen();
+    
     // Initialize Farcaster SDK first
     await initializeFarcaster();
     
