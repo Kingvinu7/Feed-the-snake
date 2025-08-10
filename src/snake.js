@@ -1,39 +1,13 @@
 // snake.js - Farcaster Miniapp compatible version
 
+// These variables will be set once the game starts and checks for the SDK
 let sdk = null;
 let isInFrame = false;
 let frameContext = null;
 
-// Initialize Farcaster Miniapp SDK
-async function initializeFarcaster() {
-  try {
-    // Wait for miniapp to be available
-    if (typeof window.miniapp !== 'undefined') {
-      await window.miniapp.init();
-      sdk = window.miniapp;
-      isInFrame = true;
-      frameContext = sdk.context;
-      console.log('✅ Farcaster Miniapp SDK initialized');
-      console.log('Frame context:', frameContext);
-      setupMiniappFeatures();
-    } else {
-      console.log('Miniapp SDK not available, running in standalone mode');
-      isInFrame = false;
-    }
-  } catch (error) {
-    console.log('Not running inside a Farcaster miniapp or SDK unavailable:', error);
-    isInFrame = false;
-  }
-}
-
-// Setup miniapp-specific features
-function setupMiniappFeatures() {
-  if (!isInFrame || !sdk) return;
-  console.log('Setting up miniapp features');
-  
-  // Add miniapp-specific functionality here
-  // For example: analytics, user data access, etc.
-}
+// The initializeFarcaster() function is no longer needed, as main.js handles it.
+// The setupMiniappFeatures() function is also not needed since the logic
+// has been integrated directly into initGame().
 
 // Show loading screen
 function showLoadingScreen() {
@@ -473,10 +447,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Send score to Farcaster if in miniapp
-    if (isInFrame && sdk) {
+    if (window.miniapp) {
       try {
         // Miniapp-specific score reporting
-        sdk.actions.ready();
+        window.miniapp.actions.ready();
       } catch (e) {
         console.log('Could not report to miniapp');
       }
@@ -561,10 +535,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const shareText = `🐍 I just scored ${score} points in Feed The Snake!`;
     const shareUrl = window.location.href;
     
-    if (isInFrame && sdk) {
+    if (window.miniapp) { // Check for global window.miniapp
       try {
         // Farcaster Miniapp specific sharing
-        sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`);
+        window.miniapp.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`);
       } catch (e) {
         console.log('Miniapp share failed, using fallback');
         fallbackShare(shareText, shareUrl);
@@ -748,14 +722,23 @@ document.addEventListener('DOMContentLoaded', function() {
     food = generateFood();
     drawGame();
     
-    // Initialize Farcaster
-    initializeFarcaster().then(() => {
-      // Hide loading screen after initialization
-      hideLoadingScreen();
-    }).catch(() => {
-      // Hide loading screen even if Farcaster init fails
-      hideLoadingScreen();
-    });
+    // Check if the Farcaster Miniapp SDK is available from our main.js entry
+    if (typeof window.miniapp !== 'undefined') {
+        sdk = window.miniapp;
+        isInFrame = true;
+        frameContext = sdk.context;
+        console.log('✅ Farcaster Miniapp SDK is ready');
+        console.log('Frame context:', frameContext);
+
+        // Notify the SDK that the app is ready to receive commands
+        sdk.actions.ready();
+    } else {
+        console.log('Miniapp SDK not available, running in standalone mode');
+        isInFrame = false;
+    }
+    
+    // Hide loading screen after initialization
+    hideLoadingScreen();
     
     // Start game loop
     gameLoop();

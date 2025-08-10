@@ -1,10 +1,9 @@
 {
   "name": "feed-the-snake",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A Farcaster Miniapp version of the classic Snake game.",
+  "main": "src/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
@@ -13,16 +12,21 @@
     "type": "git",
     "url": "git+https://github.com/Kingvinu7/Feed-the-snake.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "snake",
+    "farcaster",
+    "miniapp",
+    "game"
+  ],
+  "author": "vinu07",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/Kingvinu7/Feed-the-snake/issues"
   },
   "homepage": "https://github.com/Kingvinu7/Feed-the-snake#readme",
   "dependencies": {
-    "@farcaster/miniapp-sdk": "^0.1.8"
+    "@farcaster/miniapp-sdk": "^0.1.6"
   },
   "devDependencies": {
     "vite": "^7.1.1"
